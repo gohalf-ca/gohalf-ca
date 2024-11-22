@@ -18,7 +18,7 @@ export default function RootLayout() {
             publishableKey={PUBLISHABLE_KEY}
         >
             <Navbar />
-            <main>
+            <main className='min-h-screen'>
                 <Outlet />
             </main>
         </ClerkProvider>
