@@ -40,10 +40,11 @@ Logo.propTypes = {
 export function Navbar() {
     const { user } = useUser();
     const navigation = [
-        { name: "Dashboard", href: "/dashboard" },
+        { name: "Trips", href: "/trips" },
+        { name: "Expenses", href: "/expenses" },
     ];
     return (
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 border">
+        <header className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8 border">
             <Popover as="header" className="relative">
                 <nav
                     className="relative flex items-center justify-between"
@@ -69,7 +70,7 @@ export function Navbar() {
                                 <Link
                                     key={item.name}
                                     to={item.href}
-                                    className="px-3 text-base font-medium text-white hover:rounded-md hover:bg-white hover:text-indigo-600"
+                                    className="px-3 text-base font-medium text-black hover:rounded-md hover:bg-white hover:text-indigo-600"
                                 >
                                     {item.name}
                                 </Link>
@@ -79,7 +80,7 @@ export function Navbar() {
                     {/*right side desktop*/}
                     <div className="hidden transition-opacity md:flex md:items-center md:space-x-2">
                         <SignedIn>
-                            <Link to="/dashboard" className="px-3 py-2 text-base font-medium text-white hover:rounded-md hover:bg-white hover:text-indigo-600">Dashboard</Link>
+                            <Link to="/dashboard" className="px-3 py-2 text-base font-medium text-black hover:rounded-md hover:bg-white hover:text-indigo-600">Dashboard</Link>
                             <UserButton />
                         </SignedIn>
                         <SignedOut>
@@ -139,9 +140,7 @@ export function Navbar() {
                                         </Link>
                                     ))}
                                 </div>
-
-
-                                {/*<Divider />*/}
+                                <Divider />
                                 <div className="mt-6 px-5">
                                     <SignedIn>
                                         <div>
@@ -185,31 +184,6 @@ export function Navbar() {
                     </PopoverPanel>
                 </Transition>
             </Popover>
-        </div >
-    )
-}
-
-export default function Header() {
-    return (
-        <header className="fixed w-full p-2 z-20 backdrop-blur-md">
-            <div className="mx-auto max-w-3xl">
-                <nav className="flex items-center gap-3 text-base">
-                    <a href="/" className="group">
-                        <h2
-                            className="font-semibold tracking-tighter p-2 lg:pl-0 font-mplus text-lg"
-                        >
-                            GoHalf
-                        </h2>
-                    </a>
-                    <div className="flex-1"></div>
-                    <div className="items-center gap-5 mr-0 hidden md:flex">
-                        <a href="/dashboard" className="group">Dashboard</a>
-                    </div>
-                    <div className="block md:hidden z-50">
-                        {/*  <DropdownMenu client:load />*/}
-                    </div>
-                </nav>
-            </div>
         </header>
     )
 }
