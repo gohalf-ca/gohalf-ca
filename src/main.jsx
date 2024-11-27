@@ -13,6 +13,8 @@ import IndexPage from './routes'
 import SignInPage from './routes/sign-in'
 import SignUpPage from './routes/sign-up'
 import DashboardPage from './routes/dashboard'
+import CreateTrip from './routes/CreateTrip'
+
 
 const router = createBrowserRouter([
     {
@@ -30,6 +32,7 @@ const router = createBrowserRouter([
                     // { path: '/dashboard/invoices', element: <InvoicesPage /> },
                 ],
             },
+            {path: '/CreateTrip', element: <CreateTrip/>},
         ],
     },
 ])
