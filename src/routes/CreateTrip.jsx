@@ -16,7 +16,7 @@ export default function CreateTrip(){
 
                 <div className='flex flex-col'>
                     <h3 className='sm:text-xl text-lg font-medium pb-5'>Trip Name</h3>
-                    <input className='border border-black rounded-2xl sm:w-20w sm:h-15 w-10/12 h-10 p-1 font-medium ' type="text" name="" id="" />
+                    <input type="text" className='text-2xl font-bold pl-4 sm:w-20w w-full  p-1 h-12 h-10 border-2 border-black rounded-2xl '/>
 
                 </div>
 
@@ -35,7 +35,7 @@ export default function CreateTrip(){
             </div>
 
             <div className='self-center pt-20 sm:mt-20'>
-                <button className='text-center text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-20 text-white bg-black transition hover:bg-white hover:text-black hover:-translate-y-1 hover:scale-105'>Start Trip</button>
+                <Link className='text-center text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-20 text-white bg-black transition hover:bg-white hover:text-black hover:-translate-y-1 hover:scale-105'>Start Trip</Link>
             </div>
 
         </div>
