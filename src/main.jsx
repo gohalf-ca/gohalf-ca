@@ -15,6 +15,8 @@ import SignUpPage from './routes/sign-up'
 import DashboardPage from './routes/dashboard'
 import CreateTrip from './routes/CreateTrip'
 import Jointrip from './routes/join-trip'
+import JoinLink from './routes/joinLink'
+import CreateLink from './routes/createLink'
 
 
 const router = createBrowserRouter([
@@ -35,6 +37,8 @@ const router = createBrowserRouter([
             },
             {path: '/CreateTrip', element: <CreateTrip/>},
             {path: '/JoinTrip', element: <Jointrip/>},
+            {path: '/createLink', element: <CreateLink/>},
+            {path: '/joinLink', element: <JoinLink/>},
         ],
     },
 ])
