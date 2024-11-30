@@ -18,6 +18,12 @@ export default function IndexPage() {
                     <li>
                         <Link to="/dashboard">Dashboard</Link>
                     </li>
+                    <li>
+                        <Link to="/createLink">Create a Link</Link>
+                    </li>
+                    <li>
+                        <Link to="/joinLink">Redeem Code</Link>
+                    </li>
                 </ul>
             </div>
         </div>
