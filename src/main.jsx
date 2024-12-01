@@ -17,6 +17,9 @@ import CreateTrip from './routes/CreateTrip'
 import Jointrip from './routes/join-trip'
 import JoinLink from './routes/joinLink'
 import CreateLink from './routes/createLink'
+import ExpensesPage from './routes/expenses'
+import MainTripsPage from './routes/maintrip'
+import ViewTripDetails from './routes/tripDetails'
 
 
 const router = createBrowserRouter([
@@ -39,6 +42,9 @@ const router = createBrowserRouter([
             {path: '/JoinTrip', element: <Jointrip/>},
             {path: '/createLink', element: <CreateLink/>},
             {path: '/joinLink', element: <JoinLink/>},
+            {path: '/expenses', element: <ExpensesPage/>},
+            {path: '/Trips', element: <MainTripsPage/>},
+            { path: '/tripDetails/:tripId', element: <ViewTripDetails /> },
         ],
     },
 ])

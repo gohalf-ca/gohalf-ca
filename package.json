@@ -13,9 +13,12 @@
     "@clerk/clerk-react": "^5.16.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "chart.js": "^4.4.6",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "recharts": "^2.13.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
