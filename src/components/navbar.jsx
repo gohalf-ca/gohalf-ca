@@ -1,10 +1,11 @@
 import { Popover, PopoverButton, PopoverPanel, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { class_names } from "../lib/utils"
+import { cn } from "../lib/utils"
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { Fragment } from "react";
 import PropTypes from "prop-types";
+import ThemeToggle from "../components/theme-toggle-button";
 
 export function Divider() {
     return (
@@ -21,8 +22,8 @@ export function Logo({ className }) {
         <a href="/">
             <span className="sr-only">GoHalf</span>
             <h2
-                className={class_names(
-                    "p-2 text-2xl font-semibold tracking-tighter lg:pl-0",
+                className={cn(
+                    "p-2 text-2xl font-semibold tracking-tighter lg:pl-0 dark:text-foreground/80",
                     className
                 )}
             >
@@ -44,7 +45,7 @@ export function Navbar() {
         { name: "Expenses", href: "/expenses" },
     ];
     return (
-        <header className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8 border">
+        <header className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
             <Popover as="header" className="relative">
                 <nav
                     className="relative flex items-center justify-between"
@@ -70,7 +71,7 @@ export function Navbar() {
                                 <Link
                                     key={item.name}
                                     to={item.href}
-                                    className="px-3 text-base font-medium text-black hover:rounded-md hover:bg-white hover:text-indigo-600"
+                                    className="px-3 text-base font-medium text-black dark:text-foreground/90"
                                 >
                                     {item.name}
                                 </Link>
@@ -80,17 +81,18 @@ export function Navbar() {
                     {/*right side desktop*/}
                     <div className="hidden transition-opacity md:flex md:items-center md:space-x-2">
                         <SignedIn>
-                            <Link to="/dashboard" className="px-3 py-2 text-base font-medium text-black hover:rounded-md hover:bg-white hover:text-indigo-600">Dashboard</Link>
+                            <Link to="/dashboard" className="px-3 py-2 text-base text-black-100 dark:text-foreground font-medium hover:rounded-md">Dashboard</Link>
                             <UserButton />
                         </SignedIn>
                         <SignedOut>
                             <Link
                                 to="/sign-in"
-                                className="rounded-2xl border bg-white p-3 text-base font-semibold leading-none text-indigo-600 transition-all duration-300 hover:rounded-md"
+                                className="rounded-xl border dark:border-foreground/80 dark:text-foreground/80 p-2 text-base font-semibold leading-none transition-all duration-300 hover:rounded-md"
                             >
                                 Sign in
                             </Link>
                         </SignedOut>
+                        <ThemeToggle />
                     </div>
                 </nav>
 
