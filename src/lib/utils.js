@@ -1,3 +1,3 @@
-export function class_names(...classes) {
+export function cn(...classes) {
     return classes.filter(Boolean).join(" ");
 }
