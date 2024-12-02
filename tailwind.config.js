@@ -12,6 +12,10 @@ export default {
                 "white-100": "#F0F0F0",
                 background: "#0a0a0b",
                 foreground: "#FAFAFA",
+                accent: {
+                    DEFAULT: "hsl(var(--accent))",
+                    foreground: "hsl(var(--accent-foreground))",
+                },
             },
             width: {
                 '20w': '450px'
