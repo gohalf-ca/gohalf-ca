@@ -38,12 +38,17 @@ Logo.propTypes = {
     className: PropTypes.string
 }
 
+const authed_nav = [
+    { name: "Trips", to: "/trips" },
+    { name: "Expenses", to: "/expenses" },
+];
+
+const navigation = [
+    // { name: "Home", to: "/" }
+];
+
 export function Navbar() {
-    const { user } = useUser();
-    const navigation = [
-        { name: "Trips", href: "/trips" },
-        { name: "Expenses", href: "/expenses" },
-    ];
+    const { user, isSignedIn } = useUser();
     return (
         <header className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
             <Popover as="header" className="relative">
@@ -67,7 +72,7 @@ export function Navbar() {
                         </div>
                         {/*left menu items*/}
                         <div className="hidden -space-x-1 md:ml-10 md:flex">
-                            {navigation.map((item) => (
+                            {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => (
                                 <Link
                                     key={item.name}
                                     to={item.href}
