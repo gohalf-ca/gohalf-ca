@@ -1,8 +1,8 @@
 import { Popover, PopoverButton, PopoverPanel, Transition } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars2Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { cn } from "../lib/utils"
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Fragment } from "react";
 import PropTypes from "prop-types";
 import ThemeToggle from "../components/theme-toggle-button";
@@ -23,7 +23,7 @@ export function Logo({ className }) {
             <span className="sr-only">GoHalf</span>
             <h2
                 className={cn(
-                    "p-2 text-2xl font-semibold tracking-tighter lg:pl-0 dark:text-foreground/80",
+                    " text-2xl font-semibold tracking-tighter lg:pl-0 text-black-100 dark:text-foreground/80",
                     className
                 )}
             >
@@ -41,42 +41,45 @@ Logo.propTypes = {
 const authed_nav = [
     { name: "Trips", to: "/trips" },
     { name: "Expenses", to: "/expenses" },
+    { name: "Dashboard", to: "/dashboard" }
 ];
 
 const navigation = [
-    // { name: "Home", to: "/" }
+    { name: "Home", to: "/" }
 ];
 
 export function Navbar() {
     const { user, isSignedIn } = useUser();
+    const pathname = useLocation().pathname;
     return (
-        <header className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
+        <header className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-b">
             <Popover as="header" className="relative">
                 <nav
-                    className="relative flex items-center justify-between"
+                    className="relative flex items-center justify-between h-14"
                     aria-label="Global"
                 >
                     <div className="flex flex-1 items-center">
                         <div className="flex w-full items-center justify-between md:w-auto">
-                            <Logo className="mb-1 text-custom-white" />
-                            <div className="-mr-2 flex items-center md:hidden">
-                                <PopoverButton className="inline-flex justify-center rounded-md border border-custom-white px-2 py-2 text-sm font-medium text-custom-white shadow-sm transition-all hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
+                            <Logo className="mr-3 mb-1" />
+                            <div className="-mr-2 flex items-center md:hidden gap-1">
+                                <ThemeToggle />
+                                <PopoverButton className="inline-flex justify-center rounded-md px-2 py-2 text-sm font-medium transition-all">
                                     <span className="sr-only">Open main menu</span>
-                                    <Bars3Icon
+                                    <Bars2Icon
                                         strokeWidth={2}
-                                        className="h-6 w-6"
+                                        className="h-6 w-6 dark:text-foreground/80"
                                         aria-hidden="true"
                                     />
                                 </PopoverButton>
                             </div>
                         </div>
                         {/*left menu items*/}
-                        <div className="hidden -space-x-1 md:ml-10 md:flex">
-                            {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => (
+                        <div className="hidden -space-x-1 md:flex">
+                            {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => pathname === item.to ? null : (
                                 <Link
                                     key={item.name}
-                                    to={item.href}
-                                    className="px-3 text-base font-medium text-black dark:text-foreground/90"
+                                    to={item.to}
+                                    className="px-3 text-sm font-medium text-black-100 dark:text-foreground"
                                 >
                                     {item.name}
                                 </Link>
@@ -86,7 +89,7 @@ export function Navbar() {
                     {/*right side desktop*/}
                     <div className="hidden transition-opacity md:flex md:items-center md:space-x-2">
                         <SignedIn>
-                            <Link to="/dashboard" className="px-3 py-2 text-base text-black-100 dark:text-foreground font-medium hover:rounded-md">Dashboard</Link>
+                            {/*<Link to="/dashboard" className="px-3 py-2 text-base text-black-100 dark:text-foreground font-medium hover:rounded-md">Dashboard</Link>*/}
                             <UserButton />
                         </SignedIn>
                         <SignedOut>
@@ -113,22 +116,13 @@ export function Navbar() {
                 >
                     <PopoverPanel
                         focus
-                        className="absolute inset-x-0 top-0 z-10 origin-top scale-100 opacity-100 transition md:hidden bg-white"
+                        className="absolute inset-x-0 top-0 z-10 origin-top scale-100 opacity-100 transition md:hidden bg-white dark:bg-background"
                     >
                         <div className="rounded-md border border-zinc-300 bg-custom-white shadow">
                             <div className="flex items-center justify-between px-5 pt-4">
-                                <div>
-                                    <Link to="/">
-                                        <span className="sr-only">GoHalf</span>
-                                        <h2 className="p-2 text-2xl font-semibold tracking-tighter sm:text-3xl lg:pl-0">
-                                            <span className="text-indigo-700">Go</span>
-                                            <span>Half</span>
-                                        </h2>
-                                    </Link>
-                                </div>
-
+                                <Logo />
                                 <div className="-mr-2">
-                                    <PopoverButton className="inline-flex items-center justify-center rounded-md bg-custom-white p-2 text-gray-400 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-600">
+                                    <PopoverButton className="inline-flex items-center justify-center rounded-md bg-custom-white p-2 text-black-100 dark:text-foreground dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-inset">
                                         <span className="sr-only">Close menu</span>
                                         <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                                     </PopoverButton>
@@ -137,18 +131,18 @@ export function Navbar() {
 
                             <div className="pb-6 pt-5">
                                 <div className="mb-2 flex flex-col space-y-1 px-2">
-                                    {navigation.map((item) => (
+                                    {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => item.name !== "Dashboard" ? (
                                         <Link
                                             key={item.name}
-                                            to={item.href}
-                                            className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50"
+                                            to={item.to}
+                                            className="block rounded-md px-3 py-2 text-base font-medium text-black-100 dark:text-foreground/80 hover:bg-zinc-50 dark:hover:bg-zinc-800"
                                         >
                                             {item.name}
                                         </Link>
-                                    ))}
+                                    ) : null)}
                                 </div>
                                 <Divider />
-                                <div className="mt-6 px-5">
+                                <div className="mt-6 px-5 text-black-100 dark:text-foreground/80">
                                     <SignedIn>
                                         <div>
                                             <div className="flex flex-wrap items-end justify-between">
@@ -160,7 +154,7 @@ export function Navbar() {
                                                         <div className="text-base font-medium">
                                                             {user?.firstName}
                                                         </div>
-                                                        <div className="text-sm font-medium text-gray-400">
+                                                        <div className="text-sm font-medium">
                                                             {user?.lastName}
                                                         </div>
                                                     </div>
@@ -175,7 +169,7 @@ export function Navbar() {
                                         </div>
                                     </SignedIn>
                                     <SignedOut>
-                                        <p className="text-center text-base font-medium text-gray-400">
+                                        <p className="text-center text-base font-medium text-black-100 dark:text-foreground/80">
                                             Existing customer?{" "}
                                             <Link
                                                 to="/sign-in"
