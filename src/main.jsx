@@ -39,7 +39,7 @@ const router = createBrowserRouter([
                 ],
             },
             { path: '/CreateTrip', element: <CreateTrip /> },
-            { path: '/JoinTrip', element: <Jointrip /> },
+            { path: '/join-trip', element: <Jointrip /> },
             { path: '/createLink', element: <CreateLink /> },
             { path: '/joinLink', element: <JoinLink /> },
             { path: '/expenses', element: <ExpensesPage /> },
