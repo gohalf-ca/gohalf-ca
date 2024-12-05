@@ -5,66 +5,73 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function ExpensesPage() {
-  // Состояние для расходов и формы
   const [expenses, setExpenses] = useState([]);
   const [newExpense, setNewExpense] = useState({ date: '', amount: '', category: '' });
+  const [categoryTotals, setCategoryTotals] = useState({});
   const [showForm, setShowForm] = useState(false);
-  const [editExpense, setEditExpense] = useState(null); // Для редактирования записи
-  
-  const userName = 'John Doe';  // Имя пользователя, можно заменить на динамическое
+  const [editExpense, setEditExpense] = useState(null);
 
-  // Симуляция загрузки данных (например, из API или локального хранилища)
+  const userName = 'John Doe';
+
+  // Обновляет суммы по категориям
+  const updateCategoryTotals = (updatedExpenses) => {
+    const totals = updatedExpenses.reduce((acc, expense) => {
+      acc[expense.category] = (acc[expense.category] || 0) + Number(expense.amount);
+      return acc;
+    }, {});
+    setCategoryTotals(totals);
+  };
+
+  // Инициализация с примерами расходов
   useEffect(() => {
-    const fetchData = () => {
-      const mockExpenses = [
-        { id: 1, description: 'Food', amount: 50, category: 'Food', date: '2024-11-01' },
-        { id: 2, description: 'Hotel', amount: 200, category: 'Accommodation', date: '2024-11-02' },
-        { id: 3, description: 'Transport', amount: 30, category: 'Transport', date: '2024-11-03' }
-      ];
-      setExpenses(mockExpenses);
-    };
-
-    fetchData();
+    const mockExpenses = [
+      { id: 1, description: 'Food', amount: 50, category: 'Food', date: '2024-11-01' },
+      { id: 2, description: 'Hotel', amount: 200, category: 'Accommodation', date: '2024-11-02' },
+      { id: 3, description: 'Transport', amount: 30, category: 'Transport', date: '2024-11-03' }
+    ];
+    setExpenses(mockExpenses);
+    updateCategoryTotals(mockExpenses);
   }, []);
 
-  // Функция для добавления или обновления расхода
+  // Добавление или обновление расхода
   const handleSubmitExpense = () => {
     if (editExpense) {
-      // Обновляем расход
-      setExpenses(expenses.map(exp => (exp.id === editExpense.id ? { ...editExpense, ...newExpense } : exp)));
-      setEditExpense(null); // Сбрасываем редактирование
+      const updatedExpenses = expenses.map(exp => 
+        exp.id === editExpense.id ? { ...editExpense, ...newExpense } : exp
+      );
+      setExpenses(updatedExpenses);
+      updateCategoryTotals(updatedExpenses);
+      setEditExpense(null);
     } else {
-      // Добавляем новый расход
       const newExpenseData = { ...newExpense, id: Date.now() };
-      setExpenses([...expenses, newExpenseData]);
+      const updatedExpenses = [...expenses, newExpenseData];
+      setExpenses(updatedExpenses);
+      updateCategoryTotals(updatedExpenses);
     }
     setNewExpense({ date: '', amount: '', category: '' });
     setShowForm(false);
   };
 
-  // Функция для начала редактирования расхода
+  // Удаление расхода
+  const handleDelete = (id) => {
+    const updatedExpenses = expenses.filter(expense => expense.id !== id);
+    setExpenses(updatedExpenses);
+    updateCategoryTotals(updatedExpenses);
+  };
+
+  // Редактирование расхода
   const handleEdit = (expense) => {
     setNewExpense({ date: expense.date, amount: expense.amount, category: expense.category });
-    setEditExpense(expense); // Устанавливаем расход для редактирования
+    setEditExpense(expense);
     setShowForm(true);
   };
 
-  // Удаление расхода
-  const handleDelete = (id) => {
-    setExpenses(expenses.filter(expense => expense.id !== id));
-  };
-
-  // Формирование данных для круговой диаграммы
-  const categoryData = expenses.reduce((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
-    return acc;
-  }, {});
-
+  // Данные для диаграммы
   const chartData = {
-    labels: Object.keys(categoryData),
+    labels: Object.keys(categoryTotals),
     datasets: [
       {
-        data: Object.values(categoryData),
+        data: Object.values(categoryTotals),
         backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4caf50'],
         hoverOffset: 4
       }
@@ -72,36 +79,29 @@ export default function ExpensesPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-100 pb-20"> {/* Добавлено пространство внизу */}
-      {/* Заголовок */}
+    <div className="w-full min-h-screen bg-gray-100 pb-20">
       <div className='flex justify-center pt-10'>
-        <h1 className='text-4xl font-bold font-sans'>{userName}'s Expenses</h1>
+        <h1 className='text-4xl font-bold'>{userName}'s Expenses</h1>
       </div>
 
       <div className='flex flex-col pt-10 justify-center gap-3 sm:px-5 lg:px-20 sm:mx-5 lg:mx-20 max-w-screen-lg mx-auto'>
-        <p className='text-sm sm:text-base pt-6 pb-4 self-center'>
-          Here is the list of expenses for your trip!
-        </p>
-        
-        {/* Круговая диаграмма */}
         <div className='flex justify-center pt-10'>
           <div className='w-full sm:w-80 md:w-96 lg:w-120'>
             <Doughnut data={chartData} />
           </div>
         </div>
 
-        {/* Категории справа от диаграммы */}
+        {/* Список категорий и их суммы */}
         <div className='flex justify-center pt-6'>
           <div className='text-black'>
-            {Object.entries(categoryData).map(([category, amount]) => (
+            {Object.entries(categoryTotals).map(([category, total]) => (
               <div key={category} className='mb-2'>
-                <strong>{category}:</strong> ${amount}
+                <strong>{category}:</strong> ${total}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Кнопка для добавления нового расхода */}
         <div className='pt-5 sm:pt-10 text-center'>
           <button
             onClick={() => setShowForm(!showForm)}
@@ -111,7 +111,6 @@ export default function ExpensesPage() {
           </button>
         </div>
 
-        {/* Форма для добавления или редактирования расхода */}
         {showForm && (
           <div className='pt-10'>
             <div className='flex flex-col gap-3'>
@@ -148,7 +147,6 @@ export default function ExpensesPage() {
           </div>
         )}
 
-        {/* Список расходов */}
         <div className='pt-10'>
           <h2 className='text-2xl font-semibold mb-5'>Expenses from the Last 2 Weeks</h2>
           {expenses.length > 0 ? (
@@ -159,18 +157,18 @@ export default function ExpensesPage() {
                     <span className='text-gray-600'>{expense.date}</span><br />
                     <span>{expense.description} - ${expense.amount}</span>
                   </div>
-                  <div className='flex gap-2'>
+                  <div className='flex gap-4'>
                     <button
                       onClick={() => handleEdit(expense)}
-                      className='bg-yellow-400 text-white py-1 px-4 rounded-lg'
+                      className="text-white text-xl hover:text-yellow-600"
                     >
-                      Edit
+                      ✏️
                     </button>
                     <button
                       onClick={() => handleDelete(expense.id)}
-                      className='bg-red-500 text-white py-1 px-4 rounded-lg'
+                      className="text-white text-xl hover:text-red-600"
                     >
-                      Delete
+                      🗑️
                     </button>
                   </div>
                 </li>
@@ -184,3 +182,4 @@ export default function ExpensesPage() {
     </div>
   );
 }
+

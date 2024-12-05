@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 
+
+
 // Import the layouts
 import RootLayout from './layouts/root-layout'
 import DashboardLayout from './layouts/dashboard-layout'
@@ -22,6 +24,8 @@ import MainTripsPage from './routes/maintrip'
 import ViewTripDetails from './routes/tripDetails'
 
 
+
+
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
@@ -38,13 +42,15 @@ const router = createBrowserRouter([
                     // { path: '/dashboard/invoices', element: <InvoicesPage /> },
                 ],
             },
-            { path: '/CreateTrip', element: <CreateTrip /> },
-            { path: '/join-trip', element: <Jointrip /> },
-            { path: '/createLink', element: <CreateLink /> },
-            { path: '/joinLink', element: <JoinLink /> },
-            { path: '/expenses', element: <ExpensesPage /> },
-            { path: '/trips', element: <MainTripsPage /> },
-            { path: '/trip-details/:tripId', element: <ViewTripDetails /> },
+            {path: '/CreateTrip', element: <CreateTrip/>},
+            {path: '/JoinTrip', element: <Jointrip/>},
+            {path: '/createLink', element: <CreateLink/>},
+            {path: '/joinLink', element: <JoinLink/>},
+            {path: '/expenses', element: <ExpensesPage/>},
+            {path: '/Trips', element: <MainTripsPage/>},
+            {path: '/ViewTripDetails', element: <ViewTripDetails/>},
+
+            
         ],
     },
 ])
