@@ -1,36 +1,49 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
+import { useUser } from '@clerk/clerk-react';
 
-// Функция для подсчета доли каждого участника
-const calculateShare = (expenses, participants) => {
-    const total = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
-    const share = total / participants.length;
-    return participants.map(participant => ({
-        name: participant,
-        value: share,
-    }));
-};
 
-// Компонент ViewTripDetails
+
 export default function ViewTripDetails() {
     const { tripId } = useParams();
     const [trip, setTrip] = useState(null);
     const [expenses, setExpenses] = useState([]);
-    const [participants, setParticipants] = useState([]);
-    const [newExpense, setNewExpense] = useState({ amount: '', description: '', member: '' });
+    //const [participants, setParticipants] = useState([]);
+    const [newExpense, setNewExpense] = useState({ amount: '', description: '' });
+
+
+    const { user } = useUser();
+    const clerk_ID = user.id;
+    let userID;
+
+    let initialSetUp = async () => {
+        userID = await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${clerk_ID}`)
+        .then(response => response.json());
+    }
+
+    initialSetUp();
+
+
+    const refreshExpenses = async() =>{
+        //change with actual api call of getting expenses
+                //======================================================
+                // const expenses = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
+                // .then(response => response.json());
+    }
 
     useEffect(() => {
-        // Загрузка данных трипа из localStorage
+
         const fethDate = async () => {
-            try {
-                const storedTrips = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
-                    .then(response => response.json());
-                const tripData = storedTrips;
+            try {                     
+                
+                const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
+                .then(response => response.json());          
+                
                 if (tripData) {
                     setTrip(tripData);
-                    setExpenses(tripData.expenses || []);
-                    setParticipants(tripData.participants || []);
+                    setExpenses(expenses || []);
+                    //setParticipants(tripData.participants || []);
                 }
             } catch (err) {
                 console.log("Error has occured fetching Data")
@@ -40,30 +53,39 @@ export default function ViewTripDetails() {
         fethDate();
 
 
-    }, [tripId]);
+    }, []);
 
     // Функция для добавления нового расхода
-    const addExpense = () => {
-        const updatedExpenses = [...expenses, newExpense];
-        setExpenses(updatedExpenses);
-        setNewExpense({ amount: '', description: '', member: '' });
-        // Сохраняем обновленные данные
-        const updatedTrips = JSON.parse(localStorage.getItem('trips') || '[]');
-        if (updatedTrips[tripId]) {
-            updatedTrips[tripId].expenses = updatedExpenses;
-            localStorage.setItem('trips', JSON.stringify(updatedTrips));
-        }
+    const addExpense = async () => {
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/expense${tripId}`, {
+            method: "POST", 
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                created_by: userID,
+                amount: newExpense.amount, 
+                desc: newExpense.desc
+
+            })
+        }).then(response => response.json()).then(response => response.trip_id);
+        
+        refreshExpenses();
+        
     };
 
     // Функция для удаления расхода
-    const deleteExpense = (index) => {
-        const updatedExpenses = expenses.filter((_, i) => i !== index);
-        setExpenses(updatedExpenses);
-        const updatedTrips = JSON.parse(localStorage.getItem('trips') || '[]');
-        if (updatedTrips[tripId]) {
-            updatedTrips[tripId].expenses = updatedExpenses;
-            localStorage.setItem('trips', JSON.stringify(updatedTrips));
-        }
+    const deleteExpense = async (expense_id) => {
+
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/expense${expense_id}`, {
+            method: "DELETE", // Specify the HTTP method
+            headers: {
+                "Content-Type": "application/json",
+            }})
+
+
     };
 
     return (
@@ -72,14 +94,19 @@ export default function ViewTripDetails() {
                 <>
                     <div
                         className="relative bg-cover bg-center h-60 rounded-lg overflow-hidden"
-                        style={{ backgroundImage: `url(${trip.photo})` }}
+                        style={
+                            trip.photo ? 
+                            { backgroundImage: `url(${trip.photo})` }
+                            :{backgroundColor: '#313131'}
+                        
+                        }
                     >
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                             <h1 className="text-4xl font-bold text-white">{trip.name}</h1>
                         </div>
                     </div>
 
-                    <div className="mt-6 flex justify-center">
+                    {/* <div className="mt-6 flex justify-center">
                         <ResponsiveContainer width="80%" height={300}>
                             <PieChart>
                                 <Pie
@@ -98,7 +125,7 @@ export default function ViewTripDetails() {
                                 <Legend />
                             </PieChart>
                         </ResponsiveContainer>
-                    </div>
+                    </div> */}
 
                     <div className="mt-6">
                         <h2 className="text-2xl font-bold">Add a New Expense</h2>
@@ -117,16 +144,6 @@ export default function ViewTripDetails() {
                                 onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
                                 className="border p-2 rounded"
                             />
-                            <select
-                                value={newExpense.member}
-                                onChange={(e) => setNewExpense({ ...newExpense, member: e.target.value })}
-                                className="border p-2 rounded"
-                            >
-                                <option value="">Select Member</option>
-                                {participants.map((participant, index) => (
-                                    <option key={index} value={participant}>{participant}</option>
-                                ))}
-                            </select>
                             <button
                                 onClick={addExpense}
                                 className="bg-black text-white py-2 px-6 rounded mt-4 hover:bg-white hover:text-black"
@@ -149,7 +166,7 @@ export default function ViewTripDetails() {
                                                 <div className="text-sm">Member: {expense.member}</div>
                                             </div>
                                             <button
-                                                onClick={() => deleteExpense(index)}
+                                                onClick={() => deleteExpense(expense.id)}
                                                 className="text-red-500 hover:text-red-700"
                                             >
                                                 🗑️
