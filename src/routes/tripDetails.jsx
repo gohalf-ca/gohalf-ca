@@ -1,48 +1,86 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth  } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
+
 
 
 
 export default function ViewTripDetails() {
+    const navigate = useNavigate();
+    const { getToken } = useAuth();
     const { tripId } = useParams();
     const [trip, setTrip] = useState(null);
     const [expenses, setExpenses] = useState([]);
     //const [participants, setParticipants] = useState([]);
     const [newExpense, setNewExpense] = useState({ amount: '', description: '' });
-
+    const [userID, setUserID] = useState();
+    const [token, setToken] = useState();
 
     const { user } = useUser();
     const clerk_ID = user.id;
-    let userID;
 
-    let initialSetUp = async () => {
-        userID = await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${clerk_ID}`)
-        .then(response => response.json());
+
+
+
+
+
+useEffect(() => {
+    try{
+        let initialSetUp = async () => {    
+
+            // Api call to get userID, so it can be used in other api call where needed
+            setUserID ( await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${clerk_ID}`)
+            .then(response => response.json())
+            .then(response => response.ID));
+    
+             // Clerk's method to get a token
+            setToken (await getToken()); // Retrieve the user's token
+
+            // Retrieve trip data 
+            const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
+            .then(response => response.json());  
+
+           setTrip(tripData);
+        }
+    
+        initialSetUp();
+    }catch(err){
+        window.alert("Error has occured, please try again later");
+        console.log("Error occured: " + err);
+        navigate('/dashboard')
     }
+}, [])
 
-    initialSetUp();
 
 
-    const refreshExpenses = async() =>{
-        //change with actual api call of getting expenses
-                //======================================================
-                // const expenses = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
-                // .then(response => response.json());
+const refreshExpenses = async () => {
+
+    //calls backend to get all expenses of a trip
+
+    try{
+        let response =  await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
+        .then(res => res.json())
+        .then(res => res.data)
+
+        return await response;
+    }catch (err){
+        window.alert("An issue has occured when geting expenses!");
+        console.log("An issue has occured when geting expenses! " + err)
+        return [];
     }
+}
+
 
     useEffect(() => {
 
         const fethDate = async () => {
             try {                     
                 
-                const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
-                .then(response => response.json());          
-                
-                if (tripData) {
-                    setTrip(tripData);
-                    setExpenses(expenses || []);
+                if (trip) {
+                    const upToDateExpenses = await refreshExpenses();
+                    setExpenses(upToDateExpenses || []);
                     //setParticipants(tripData.participants || []);
                 }
             } catch (err) {
@@ -52,38 +90,49 @@ export default function ViewTripDetails() {
 
         fethDate();
 
+    }, [trip]);
 
-    }, []);
-
-    // Функция для добавления нового расхода
+    // 
     const addExpense = async () => {
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/expense${tripId}`, {
-            method: "POST", 
+        // APi call to pass through values of input fields to create expense
+        await fetch(`${import.meta.env.VITE_API_URL}/expenses`, {
+            method: "POST",
             headers: {
-                "Content-Type": "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Add authentication token
             },
             body: JSON.stringify({
-                created_by: userID,
-                amount: newExpense.amount, 
-                desc: newExpense.desc
+                trip_id: tripId,
+                user_id: userID,
+                name: newExpense.description,
+                description: " ",
+                amount: newExpense.amount
+            }), // Send the expense data
+          });
 
-            })
-        }).then(response => response.json()).then(response => response.trip_id);
+          setNewExpense({ amount: '', description: '' })
         
-        refreshExpenses();
-        
+          setExpenses(await refreshExpenses())  // Refreshes expense list by getting recent one from DB
     };
 
-    // Функция для удаления расхода
+
     const deleteExpense = async (expense_id) => {
 
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/expense${expense_id}`, {
-            method: "DELETE", // Specify the HTTP method
-            headers: {
-                "Content-Type": "application/json",
-            }})
+        try{
+            //  Attemts to delete with expense ID
+            await fetch(`${import.meta.env.VITE_API_URL}/expenses/${expense_id}`, { 
+                method: "DELETE", // Specify the HTTP method
+                headers: {
+                    "Content-Type": "application/json",
+                }})
+
+                
+                setExpenses(await refreshExpenses())    //  Refreshes expenses list
+        }catch (err){
+            console.log("Error occured when deleting expense: " + err)
+        }
 
 
     };
@@ -161,12 +210,12 @@ export default function ViewTripDetails() {
                                     {expenses.map((expense, index) => (
                                         <div key={index} className="flex justify-between items-center py-3 border-b">
                                             <div>
-                                                <div className="font-medium">{expense.description}</div>
+                                                <div className="text-xl font-medium">{expense.name}</div>
                                                 <div className="text-sm">Amount: ${expense.amount}</div>
                                                 <div className="text-sm">Member: {expense.member}</div>
                                             </div>
                                             <button
-                                                onClick={() => deleteExpense(expense.id)}
+                                                onClick={() => deleteExpense(expense.expense_id)}
                                                 className="text-red-500 hover:text-red-700"
                                             >
                                                 🗑️
