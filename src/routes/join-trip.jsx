@@ -1,4 +1,3 @@
-// import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '@clerk/clerk-react';
 import { Button } from '../components/button'

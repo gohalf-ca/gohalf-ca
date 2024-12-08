@@ -1,136 +1,108 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
-import { useUser, useAuth  } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
-
-
-
+import { useUser, useAuth } from '@clerk/clerk-react';
+import { Button } from '../components/button';
+// import { useNavigate } from 'react-router-dom';
 
 export default function ViewTripDetails() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const { getToken } = useAuth();
     const { tripId } = useParams();
     const [trip, setTrip] = useState(null);
     const [expenses, setExpenses] = useState([]);
-    //const [participants, setParticipants] = useState([]);
     const [newExpense, setNewExpense] = useState({ amount: '', description: '' });
     const [userID, setUserID] = useState();
-    const [token, setToken] = useState();
 
     const { user } = useUser();
-    const clerk_ID = user.id;
 
-
-
-
-
-
-useEffect(() => {
-    try{
-        let initialSetUp = async () => {    
-
+    useEffect(() => {
+        let initialSetUp = async () => {
             // Api call to get userID, so it can be used in other api call where needed
-            setUserID ( await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${clerk_ID}`)
-            .then(response => response.json())
-            .then(response => response.ID));
-    
-             // Clerk's method to get a token
-            setToken (await getToken()); // Retrieve the user's token
+            setUserID(await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${user.id}`)
+                .then(response => response.json())
+                .then(response => response.ID));
 
             // Retrieve trip data 
             const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
-            .then(response => response.json());  
+                .then(response => response.json());
 
-           setTrip(tripData);
+            console.log("Trip Data: ", tripData)
+            setTrip(tripData);
         }
-    
-        initialSetUp();
-    }catch(err){
-        window.alert("Error has occured, please try again later");
-        console.log("Error occured: " + err);
-        navigate('/dashboard')
+        if (user?.id) {
+            initialSetUp();
+        }
+    }, [user, tripId]);
+
+
+
+    const refreshExpenses = async () => {
+        //calls backend to get all expenses of a trip
+        try {
+            let response = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
+                .then(res => res.json())
+                .then(res => res.data)
+
+            return response;
+        } catch (err) {
+            window.alert("An issue has occured when geting expenses!");
+            console.log("An issue has occured when geting expenses! " + err)
+            return [];
+        }
     }
-}, [])
-
-
-
-const refreshExpenses = async () => {
-
-    //calls backend to get all expenses of a trip
-
-    try{
-        let response =  await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
-        .then(res => res.json())
-        .then(res => res.data)
-
-        return await response;
-    }catch (err){
-        window.alert("An issue has occured when geting expenses!");
-        console.log("An issue has occured when geting expenses! " + err)
-        return [];
-    }
-}
 
 
     useEffect(() => {
-
         const fethDate = async () => {
-            try {                     
-                
+            try {
                 if (trip) {
                     const upToDateExpenses = await refreshExpenses();
                     setExpenses(upToDateExpenses || []);
                     //setParticipants(tripData.participants || []);
                 }
             } catch (err) {
-                console.log("Error has occured fetching Data")
+                console.log("An issue has occured when geting expenses! " + err);
             }
         }
-
         fethDate();
-
     }, [trip]);
 
     // 
     const addExpense = async () => {
-
+        const token = await getToken();
         // APi call to pass through values of input fields to create expense
         await fetch(`${import.meta.env.VITE_API_URL}/expenses`, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Add authentication token
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
                 trip_id: tripId,
                 user_id: userID,
+                //  TODO: Deal with the name field
                 name: newExpense.description,
-                description: " ",
+                description: newExpense.description,
                 amount: newExpense.amount
             }), // Send the expense data
-          });
-
-          setNewExpense({ amount: '', description: '' })
-        
-          setExpenses(await refreshExpenses())  // Refreshes expense list by getting recent one from DB
+        });
+        setNewExpense({ amount: '', description: '' })
+        setExpenses(await refreshExpenses())  // Refreshes expense list by getting recent one from DB
     };
 
 
     const deleteExpense = async (expense_id) => {
-
-
-        try{
+        try {
             //  Attemts to delete with expense ID
-            await fetch(`${import.meta.env.VITE_API_URL}/expenses/${expense_id}`, { 
+            await fetch(`${import.meta.env.VITE_API_URL}/expenses/${expense_id}`, {
                 method: "DELETE", // Specify the HTTP method
                 headers: {
                     "Content-Type": "application/json",
-                }})
+                }
+            })
 
-                
-                setExpenses(await refreshExpenses())    //  Refreshes expenses list
-        }catch (err){
+            setExpenses(await refreshExpenses())    //  Refreshes expenses list
+        } catch (err) {
             console.log("Error occured when deleting expense: " + err)
         }
 
@@ -138,20 +110,20 @@ const refreshExpenses = async () => {
     };
 
     return (
-        <div className="sm:px-20 pt-1 sm:m-20 min-h-screen">
+        <div className="sm:px-20 pt-1 sm:m-20 min-h-screen text-black-100 dark:text-foreground">
             {trip ? (
                 <>
                     <div
                         className="relative bg-cover bg-center h-60 rounded-lg overflow-hidden"
                         style={
-                            trip.photo ? 
-                            { backgroundImage: `url(${trip.photo})` }
-                            :{backgroundColor: '#313131'}
-                        
+                            trip.photo ?
+                                { backgroundImage: `url(${trip.photo})` }
+                                : { backgroundColor: '#313131' }
+
                         }
                     >
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                            <h1 className="text-4xl font-bold text-white">{trip.name}</h1>
+                        <div className="absolute inset-0 bg-white-100 bg-opacity-50 flex justify-center items-center">
+                            <h1 className="text-4xl font-bold">{trip.name}</h1>
                         </div>
                     </div>
 
@@ -184,21 +156,21 @@ const refreshExpenses = async () => {
                                 placeholder="Amount"
                                 value={newExpense.amount}
                                 onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
-                                className="border p-2 rounded"
+                                className="border p-2 rounded text-black-100"
                             />
                             <input
                                 type="text"
                                 placeholder="Description"
                                 value={newExpense.description}
                                 onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
-                                className="border p-2 rounded"
+                                className="border p-2 rounded text-black-100"
                             />
-                            <button
+                            <Button
                                 onClick={addExpense}
-                                className="bg-black text-white py-2 px-6 rounded mt-4 hover:bg-white hover:text-black"
+                                variant="outline"
                             >
                                 Submit
-                            </button>
+                            </Button>
                         </div>
                     </div>
 

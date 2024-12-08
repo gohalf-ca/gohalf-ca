@@ -3,31 +3,26 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 
 export default function MainTripsPage() {
-    // Состояние для хранения списка трипов
     const [trips, setTrips] = useState([]);
     const { user } = useUser();
 
-
-    async function refreshedTrips() {
-        let response = await fetch(`${import.meta.env.VITE_API_URL}/alltrips/${user.id}`)
-            .then(response => response.json())
-            .then(response => response.data);
-
-        setTrips(response)
-    }
-
-
     useEffect(() => {
-        let getTrips = async () => {
+        async function get_trip() {
             try {
-                await refreshedTrips();
+                let response = await fetch(`${import.meta.env.VITE_API_URL}/alltrips/${user.id}`)
+                if (!response.ok) {
+                    throw new Error("Error occured during pull")
+                }
+                let { data } = await response.json();
+                if (Array.isArray(data)) {
+                    setTrips(data)
+                }
             } catch (err) {
                 console.log(`Error occured during pull of trip: ${err}`)
             }
         }
-
-        getTrips();
-    }, []);
+        void get_trip();
+    }, [user?.id]);
 
     // Функция для удаления trip
     const deleteTrip = async (tripID) => {
@@ -42,7 +37,7 @@ export default function MainTripsPage() {
         } catch (err) {
             console.log(`Error occured during delete: ${err}`)
         }
-        refreshedTrips();
+        setTrips(trips.filter(trip => trip.trip_id !== tripID));
     };
 
     // Функция для редактирования trip
