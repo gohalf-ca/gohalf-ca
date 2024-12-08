@@ -18,7 +18,6 @@ export default function MainTripsPage() {
 
 
     useEffect(() => {
-        // Загружаем данные трипов из localStorage
         let getTrips = async () => {
             try {
                 await refreshedTrips();
@@ -28,7 +27,6 @@ export default function MainTripsPage() {
         }
 
         getTrips();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Функция для удаления trip
@@ -44,6 +42,7 @@ export default function MainTripsPage() {
         } catch (err) {
             console.log(`Error occured during delete: ${err}`)
         }
+        refreshedTrips();
     };
 
     // Функция для редактирования trip
