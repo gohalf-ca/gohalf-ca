@@ -12,8 +12,6 @@ export default function DashboardPage() {
                     <div className='flex flex-col sm:flex-row pt-8 justify-start sm:space-x-6 sm:space-y-0 space-y-5'>
                         <Link to="/join-trip" className='text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-7  transition hover:bg-black hover:text-white hover:-translate-y-1 hover:scale-105'>Join an Existing Trip</Link>
                         <Link to="/CreateTrip" className='text-center text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-7 text-white bg-black transition hover:bg-white hover:text-black hover:-translate-y-1 hover:scale-105'>Create a New Trip</Link>
-                        <Link to="/join-link" className='text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-7 transition hover:bg-black hover:text-white hover:-translate-y-1 hover:scale-105'>Join a Trip Via Code</Link>
-                        <Link to="/create-link" className='text-center text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-7 text-white bg-black transition hover:bg-white hover:text-black hover:-translate-y-1 hover:scale-105'> Create a Trip Invite Link</Link>
                     </div>
                 </div>
 
