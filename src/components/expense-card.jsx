@@ -10,7 +10,7 @@ import { PropTypes } from 'prop-types'
 export function ExpenseCard({ expense }) {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const totalPaid = expense.participants.filter((p) => p.paid).length
+    const totalPaid = expense.participants.filter((p) => p.is_paid).length
     const totalParticipants = expense.participants.length
 
     return (
@@ -25,7 +25,7 @@ export function ExpenseCard({ expense }) {
             </CardHeader>
             <CardContent>
                 <p className="text-2xl font-bold">${expense.amount.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">Created by {expense.creator}</p>
+                <p className="text-sm text-muted-foreground">Created by {expense.created_by.name}</p>
             </CardContent>
             <CardFooter className="flex justify-between">
                 <Button variant="outline" onClick={() => setIsModalOpen(true)}>View Details</Button>

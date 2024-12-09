@@ -7,7 +7,7 @@ export default function MainTripsPage() {
     const { user } = useUser();
 
     useEffect(() => {
-        async function get_trip() {
+        async function get_trips() {
             try {
                 let response = await fetch(`${import.meta.env.VITE_API_URL}/alltrips/${user.id}`)
                 if (!response.ok) {
@@ -21,7 +21,7 @@ export default function MainTripsPage() {
                 console.log(`Error occured during pull of trip: ${err}`)
             }
         }
-        void get_trip();
+        void get_trips();
     }, [user?.id]);
 
     // Функция для удаления trip

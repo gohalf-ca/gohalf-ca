@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { Button } from '../components/button';
+import { Trash2 } from 'lucide-react';
+import { ExpenseCard } from '../components/expense-card';
 // import { useNavigate } from 'react-router-dom';
 
 export default function ViewTripDetails() {
@@ -12,6 +14,7 @@ export default function ViewTripDetails() {
     const [expenses, setExpenses] = useState([]);
     const [newExpense, setNewExpense] = useState({ amount: '', description: '' });
     const [userID, setUserID] = useState();
+    console.log('expenses', expenses)
 
     const { user } = useUser();
 
@@ -42,6 +45,7 @@ export default function ViewTripDetails() {
             let response = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
                 .then(res => res.json())
                 .then(res => res.data)
+            console.log('response', response)
 
             return response;
         } catch (err) {
@@ -51,23 +55,24 @@ export default function ViewTripDetails() {
         }
     }
 
-
     useEffect(() => {
-        const fethDate = async () => {
+        async function get_expenses() {
             try {
-                if (trip) {
-                    const upToDateExpenses = await refreshExpenses();
-                    setExpenses(upToDateExpenses || []);
-                    //setParticipants(tripData.participants || []);
+                let res = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
+                if (!res.ok) {
+                    throw new Error("Error occured during pull")
+                }
+                let data = await res.json();
+                if (Array.isArray(data?.results)) {
+                    setExpenses(data.results)
                 }
             } catch (err) {
-                console.log("An issue has occured when geting expenses! " + err);
+                console.log(`Error occured during pull of trip: ${err}`)
             }
         }
-        fethDate();
-    }, [trip]);
+        void get_expenses();
+    }, [tripId]);
 
-    // 
     const addExpense = async () => {
         const token = await getToken();
         // APi call to pass through values of input fields to create expense
@@ -180,19 +185,7 @@ export default function ViewTripDetails() {
                             {expenses.length > 0 ? (
                                 <div>
                                     {expenses.map((expense, index) => (
-                                        <div key={index} className="flex justify-between items-center py-3 border-b">
-                                            <div>
-                                                <div className="text-xl font-medium">{expense.name}</div>
-                                                <div className="text-sm">Amount: ${expense.amount}</div>
-                                                <div className="text-sm">Member: {expense.member}</div>
-                                            </div>
-                                            <button
-                                                onClick={() => deleteExpense(expense.expense_id)}
-                                                className="text-red-500 hover:text-red-700"
-                                            >
-                                                🗑️
-                                            </button>
-                                        </div>
+                                        <ExpenseCard key={index} expense={expense} />
                                     ))}
                                 </div>
                             ) : (
