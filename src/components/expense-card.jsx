@@ -30,7 +30,7 @@ export function ExpenseCard({ expense }) {
             </CardContent>
             <CardFooter className="flex justify-between">
                 <Button variant="outline" onClick={() => setIsModalOpen(true)}>View Details</Button>
-                <Button>Mark as Paid</Button>
+                {/*<Button>Mark as Paid</Button>*/}
             </CardFooter>
             <ParticipantModal
                 isOpen={isModalOpen}
@@ -66,8 +66,8 @@ export function ParticipantModal({ isOpen, onClose, participants, expenseName })
                                 <TableCell>{participant.name}</TableCell>
                                 <TableCell>${participant.amount.toFixed(2)}</TableCell>
                                 <TableCell>
-                                    <Badge variant={participant.paid ? 'success' : 'destructive'}>
-                                        {participant.paid ? 'Paid' : 'Unpaid'}
+                                    <Badge variant={participant.is_paid ? 'success' : 'destructive'}>
+                                        {participant.is_paid ? 'Paid' : 'Unpaid'}
                                     </Badge>
                                 </TableCell>
                             </TableRow>

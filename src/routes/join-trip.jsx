@@ -36,13 +36,13 @@ export default function JoinTrip() {
                 <div className='flex flex-col pt-20 justify-center gap-3 sm:px-20 sm:mx-20'>
                     <h1 className='text-4xl font-bold font-sans self-center'>Join Trip</h1>
                     <p className=' text-sm sm:text-base pb-4 self-center'>Enter code to join trip!</p>
-                    <form>
-                        <input maxLength={6} value={code} placeholder='Enter 6 Digit Code' onChange={handleChange} type="text" className='text-center text-2xl font-bold sm:w-20w w-9/12  self-center h-12 dark:border-foreground border dark:bg-background border-black rounded-xl ' />
-                        <Button variant="outline" disabled={!valid}
+                    <form className='flex gap-4 items-center'>
+                        <input maxLength={6} value={code} placeholder='Enter Code' onChange={handleChange} type="text" className='text-center h-10 text-xl font-bold sm:w-20w w-9/12  self-center dark:border-foreground border dark:bg-background border-black rounded-md ' />
+                        <Button variant="outline" className="h-full" disabled={!valid}
                             onClick={(ev) => {
                                 ev.preventDefault();
                                 join_trip(code)
-                            }}>Join Trip</Button>
+                            }}>Join</Button>
                     </form>
                     {/*
                     <Link className={valid ? 'sm:w-20w self-center text-center text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-20 bg-black transition hover:bg-white hover:text-black hover:-translate-y-1 hover:scale-105'

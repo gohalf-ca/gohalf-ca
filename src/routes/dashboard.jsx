@@ -5,7 +5,7 @@ export default function DashboardPage() {
         <>
             <div className='flex flex-col lg:flex-row  sm:m-10 sm:pt-20 pt-10 justify-around content-center pb-15 '>
 
-                <div className='content-center p-10'>
+                <div className='content-center p-10 dark:text-white-100'>
                     <h1 className='text-4xl font-bold font-sans'>Welcome To GoHalf Trip Expense Divider!</h1>
                     <p className='pt-4'>Manage your trip expenses effortieslly</p>
 
