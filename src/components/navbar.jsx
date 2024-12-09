@@ -50,7 +50,6 @@ const navigation = [
 
 export function Navbar() {
     const { user, isSignedIn } = useUser();
-    const pathname = useLocation().pathname;
     return (
         <header className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-b">
             <Popover as="header" className="relative">
@@ -75,7 +74,7 @@ export function Navbar() {
                         </div>
                         {/*left menu items*/}
                         <div className="hidden -space-x-1 md:flex">
-                            {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => pathname === item.to ? null : (
+                            {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => (
                                 <Link
                                     key={item.name}
                                     to={item.to}

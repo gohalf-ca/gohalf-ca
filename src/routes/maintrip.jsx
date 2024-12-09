@@ -60,7 +60,7 @@ export default function MainTripsPage() {
                             style={{ backgroundImage: `url(${trip.photo})` }}
                         >
                             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center">
-                                <h1 className="text-4xl font-bold text-white">{trip.name}</h1>
+                                <h1 className="text-4xl font-bold">{trip.name}</h1>
 
                                 <div className="absolute top-2 right-2 flex gap-4">
                                     {/* Кнопка для удаления трипа */}
@@ -93,7 +93,7 @@ export default function MainTripsPage() {
                     <div className="mt-6">
                         <Link
                             to="/create-trip" // Переход на страницу создания нового трипа
-                            className="w-full text-center text-lg text-white font-medium shadow-lg border rounded-lg border-black py-2 px-20 transition hover:bg-white hover:text-black"
+                            className="w-full text-center text-lg font-medium shadow-lg border rounded-lg py-2 px-20 transition"
                         >
                             Create a New Trip
                         </Link>
@@ -104,7 +104,7 @@ export default function MainTripsPage() {
                     <h2 className="text-2xl font-bold">You haven&apos;t created any trips yet.</h2>
                     <Link
                         to="/create-trip" // Переход на страницу создания нового трипа
-                        className="mt-4 text-lg font-medium shadow-lg border rounded-lg py-2 px-20 transition hover:bg-white hover:text-black"
+                        className="w-full text-center text-lg font-medium shadow-lg border rounded-lg py-2 px-20 transition"
                     >
                         Create a New Trip
                     </Link>
