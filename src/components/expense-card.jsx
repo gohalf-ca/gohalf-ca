@@ -11,8 +11,8 @@ import { PropTypes } from 'prop-types'
 export function ExpenseCard({ expense }) {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const totalPaid = expense.participants.filter((p) => p.is_paid).length
-    const totalParticipants = expense.participants.length
+    const totalPaid = expense.participants?.filter((p) => p.is_paid)?.length || 0
+    const totalParticipants = expense.participants?.length || 0
 
     return (
         <Card>
