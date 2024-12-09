@@ -126,8 +126,10 @@ export default function ViewTripDetails() {
                         }
                     >
                         <div className="absolute inset-0 bg-opacity-50 bg-secondary flex justify-center items-center">
-                            <h1 className="text-4xl font-bold">{trip.name}</h1>
-                            <p>{trip.description}</p>
+                            <div className="text-center">
+                                <h1 className="text-4xl font-bold">{trip.name}</h1>
+                                <p>({trip.code})</p>
+                            </div>
                         </div>
                     </div>
 
