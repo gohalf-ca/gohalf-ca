@@ -39,7 +39,7 @@ const JoinLink = () => {
             />
             <button
                 onClick={handleJoinTrip}
-                disabled={inviteCode.length !== 6}
+                disabled={inviteCode?.length !== 6}
                 className="ml-2 bg-black text-white px-4 py-2 rounded disabled:bg-gray-400"
             >
                 Join Trip

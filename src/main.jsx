@@ -38,7 +38,7 @@ const router = createBrowserRouter([
                     // { path: '/dashboard/invoices', element: <InvoicesPage /> },
                 ],
             },
-            { path: '/CreateTrip', element: <CreateTrip /> },
+            { path: '/create-trip', element: <CreateTrip /> },
             { path: '/join-trip', element: <Jointrip /> },
             { path: '/createLink', element: <CreateLink /> },
             { path: '/joinLink', element: <JoinLink /> },

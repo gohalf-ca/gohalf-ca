@@ -49,9 +49,9 @@ export default function MainTripsPage() {
     };
 
     return (
-        <div className="sm:px-20 pt-1 sm:m-20 min-h-screen">
+        <div className="sm:px-20 pt-1 sm:m-20 min-h-screen text-foreground">
             {/* Проверяем, есть ли trip, если нет - показываем сообщение */}
-            {trips.length > 0 ? (
+            {trips?.length > 0 ? (
                 <div>
                     {trips.map((trip, index) => (
                         <div
@@ -66,7 +66,7 @@ export default function MainTripsPage() {
                                     {/* Кнопка для удаления трипа */}
                                     <button
                                         onClick={() => deleteTrip(trip.trip_id)}
-                                        className="text-white text-xl hover:text-red-600"
+                                        className="text-xl hover:text-red-600"
                                     >
                                         🗑️
                                     </button>
@@ -74,7 +74,7 @@ export default function MainTripsPage() {
                                     {/* Кнопка для редактирования трипа */}
                                     <button
                                         onClick={() => editTrip(index)}
-                                        className="text-white text-xl hover:text-yellow-600"
+                                        className="text-xl hover:text-yellow-600"
                                     >
                                         ✏️
                                     </button>
@@ -92,8 +92,8 @@ export default function MainTripsPage() {
 
                     <div className="mt-6">
                         <Link
-                            to="/createtrip" // Переход на страницу создания нового трипа
-                            className="w-full text-center text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-20 text-white bg-black transition hover:bg-white hover:text-black"
+                            to="/create-trip" // Переход на страницу создания нового трипа
+                            className="w-full text-center text-lg text-white font-medium shadow-lg border rounded-lg border-black py-2 px-20 transition hover:bg-white hover:text-black"
                         >
                             Create a New Trip
                         </Link>
@@ -103,8 +103,8 @@ export default function MainTripsPage() {
                 <div className="flex flex-col items-center justify-center">
                     <h2 className="text-2xl font-bold">You haven&apos;t created any trips yet.</h2>
                     <Link
-                        to="/createtrip" // Переход на страницу создания нового трипа
-                        className="mt-4 text-lg font-medium shadow-lg border rounded-lg border-black py-2 px-20 text-white bg-black transition hover:bg-white hover:text-black"
+                        to="/create-trip" // Переход на страницу создания нового трипа
+                        className="mt-4 text-lg font-medium shadow-lg border rounded-lg py-2 px-20 transition hover:bg-white hover:text-black"
                     >
                         Create a New Trip
                     </Link>

@@ -183,7 +183,7 @@ export default function ViewTripDetails() {
                     <div className="mt-8">
                         <h2 className="text-2xl font-bold">Expenses</h2>
                         <div className="my-4">
-                            {expenses.length > 0 ? (
+                            {expenses?.length > 0 ? (
                                 <div>
                                     {expenses.map((expense, idx) => (
                                         <ExpenseCard key={idx} expense={expense} />
