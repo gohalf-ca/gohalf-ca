@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/card';
-import { Button } from '../components/button';
-import { Badge } from '../components/badge';
-// import { ParticipantModal } from '@/components/participant-modal'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 import { PropTypes } from 'prop-types'
 
 export function ExpenseCard({ expense }) {
@@ -31,19 +32,57 @@ export function ExpenseCard({ expense }) {
                 <Button variant="outline" onClick={() => setIsModalOpen(true)}>View Details</Button>
                 <Button>Mark as Paid</Button>
             </CardFooter>
+            <ParticipantModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                participants={expense.participants}
+                expenseName={expense.name}
+            />
         </Card>
     )
 }
-// <ParticipantModal
-//     isOpen={isModalOpen}
-//     onClose={() => setIsModalOpen(false)}
-//     participants={expense.participants}
-//     expenseName={expense.name}
-// />
-
-// declare props type
 ExpenseCard.propTypes = {
     expense: PropTypes.object.isRequired
+}
+
+export function ParticipantModal({ isOpen, onClose, participants, expenseName }) {
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>{expenseName} - Participants</DialogTitle>
+                </DialogHeader>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Amount Owed</TableHead>
+                            <TableHead>Status</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {participants.map((participant, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{participant.name}</TableCell>
+                                <TableCell>${participant.amount.toFixed(2)}</TableCell>
+                                <TableCell>
+                                    <Badge variant={participant.paid ? 'success' : 'destructive'}>
+                                        {participant.paid ? 'Paid' : 'Unpaid'}
+                                    </Badge>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </DialogContent>
+        </Dialog>
+    )
+}
+ParticipantModal.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    participants: PropTypes.array.isRequired,
+    expenseName: PropTypes.string.isRequired
 }
 
 

@@ -1,7 +1,7 @@
 import { ArrowRightIcon, CurrencyDollarIcon, UserGroupIcon, CalculatorIcon } from "@heroicons/react/24/outline"
 import { Link } from "react-router-dom"
-import { Button } from "../components/button"
-import { CardDescription, Card, CardTitle, CardHeader, CardContent } from "../components/card"
+import { Button } from "../components/ui/button"
+import { CardDescription, Card, CardTitle, CardHeader, CardContent } from "../components/ui/card"
 
 export default function Home() {
     return (

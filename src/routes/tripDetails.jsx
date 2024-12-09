@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
-import { Button } from '../components/button';
-import { Trash2 } from 'lucide-react';
+import { Button } from '../components/ui/button';
 import { ExpenseCard } from '../components/expense-card';
 // import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +13,6 @@ export default function ViewTripDetails() {
     const [expenses, setExpenses] = useState([]);
     const [newExpense, setNewExpense] = useState({ amount: '', description: '' });
     const [userID, setUserID] = useState();
-    console.log('expenses', expenses)
 
     const { user } = useUser();
 
@@ -181,11 +179,11 @@ export default function ViewTripDetails() {
 
                     <div className="mt-8">
                         <h2 className="text-2xl font-bold">Expenses</h2>
-                        <div className="mt-4">
+                        <div className="my-4">
                             {expenses.length > 0 ? (
                                 <div>
-                                    {expenses.map((expense, index) => (
-                                        <ExpenseCard key={index} expense={expense} />
+                                    {expenses.map((expense, idx) => (
+                                        <ExpenseCard key={idx} expense={expense} />
                                     ))}
                                 </div>
                             ) : (

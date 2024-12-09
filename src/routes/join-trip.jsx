@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '@clerk/clerk-react';
-import { Button } from '../components/button'
+import { Button } from '../components/ui/button'
 
 export default function JoinTrip() {
     const [code, setCode] = useState("");
