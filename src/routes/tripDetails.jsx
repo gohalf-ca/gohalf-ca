@@ -113,7 +113,7 @@ export default function ViewTripDetails() {
     };
 
     return (
-        <div className="sm:px-20 pt-1 sm:m-20 min-h-screen text-black-100 dark:text-foreground">
+        <div className="sm:px-20 pt-1 sm:m-20 text-foreground min-h-screen">
             {trip ? (
                 <>
                     <div
@@ -125,7 +125,7 @@ export default function ViewTripDetails() {
 
                         }
                     >
-                        <div className="absolute inset-0 bg-white-100 bg-opacity-50 flex justify-center items-center">
+                        <div className="absolute inset-0 bg-opacity-50 bg-secondary flex justify-center items-center">
                             <h1 className="text-4xl font-bold">{trip.name}</h1>
                             <p>{trip.description}</p>
                         </div>
