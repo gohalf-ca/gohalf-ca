@@ -49,7 +49,7 @@ export default function MainTripsPage() {
     };
 
     return (
-        <div className="sm:px-20 pt-1 sm:m-20 min-h-screen text-foreground">
+        <div className="lg:px-20 pt-1 sm:m-20 min-h-screen text-foreground p-4">
             {/* Проверяем, есть ли trip, если нет - показываем сообщение */}
             {trips?.length > 0 ? (
                 <div>
