@@ -38,19 +38,18 @@ export default function ViewTripDetails() {
 
 
 
-    const refreshExpenses = async () => {
-        //calls backend to get all expenses of a trip
+    async function get_expenses() {
         try {
-            let response = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
-                .then(res => res.json())
-                .then(res => res.data)
-            console.log('response', response)
-
-            return response;
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
+            if (!res.ok) {
+                throw new Error("Error occured during pull")
+            }
+            let data = await res.json();
+            if (Array.isArray(data?.results)) {
+                setExpenses(data.results)
+            }
         } catch (err) {
-            window.alert("An issue has occured when geting expenses!");
-            console.log("An issue has occured when geting expenses! " + err)
-            return [];
+            console.log(`Error occured during pull of trip: ${err}`)
         }
     }
 
@@ -91,7 +90,7 @@ export default function ViewTripDetails() {
             }), // Send the expense data
         });
         setNewExpense({ amount: '', description: '' })
-        setExpenses(await refreshExpenses())  // Refreshes expense list by getting recent one from DB
+        setExpenses(await get_expenses().results)  // Refreshes expense list by getting recent one from DB
     };
 
 
@@ -105,7 +104,7 @@ export default function ViewTripDetails() {
                 }
             })
 
-            setExpenses(await refreshExpenses())    //  Refreshes expenses list
+            setExpenses(await get_expenses().results)    //  Refreshes expenses list
         } catch (err) {
             console.log("Error occured when deleting expense: " + err)
         }
@@ -114,7 +113,7 @@ export default function ViewTripDetails() {
     };
 
     return (
-        <div className="sm:px-20 pt-1 sm:m-20 text-foreground min-h-screen">
+        <div className="lg:px-20 pt-1 sm:m-20 text-foreground min-h-screen p-4">
             {trip ? (
                 <>
                     <div
@@ -185,9 +184,9 @@ export default function ViewTripDetails() {
                         <h2 className="text-2xl font-bold">Expenses</h2>
                         <div className="my-4">
                             {expenses?.length > 0 ? (
-                                <div>
-                                    {expenses.map((expense, idx) => (
-                                        <ExpenseCard key={idx} expense={expense} />
+                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
+                                    {expenses.map((expense) => (
+                                        <ExpenseCard key={expense.id} expense={expense} />
                                     ))}
                                 </div>
                             ) : (
