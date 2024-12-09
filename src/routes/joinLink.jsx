@@ -1,23 +1,34 @@
 import { useState } from 'react';
 
+const getToken = () => localStorage.getItem('token') || null;
+
 const JoinLink = () => {
     const [inviteCode, setInviteCode] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
     const handleJoinTrip = async () => {
+        const token = getToken();
+        if (!token) {
+            setError('Authentication required.');
+            return;
+        }
+
         try {
-            const response = await fetch('/api/trips/join', {
+            const response = await fetch(`/api/trips/join/${inviteCode}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ inviteCode }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
             });
             const data = await response.json();
+
             if (response.ok) {
-                setMessage(data.message);
+                setMessage(data.message || 'Successfully joined the trip!');
                 setError('');
             } else {
-                setError(data.error);
+                setError(data.error || 'Failed to join the trip.');
                 setMessage('');
             }
         } catch (err) {
