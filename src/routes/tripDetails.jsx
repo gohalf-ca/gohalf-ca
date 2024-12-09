@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { Button } from '../components/ui/button';
 import { ExpenseCard } from '../components/expense-card';
+import { Input } from '../components/ui/input';
 // import { useNavigate } from 'react-router-dom';
 
 export default function ViewTripDetails() {
@@ -157,14 +158,14 @@ export default function ViewTripDetails() {
                     <div className="mt-6">
                         <h2 className="text-2xl font-bold">Add a New Expense</h2>
                         <div className="flex flex-col space-y-4 mt-4">
-                            <input
+                            <Input
                                 type="number"
                                 placeholder="Amount"
                                 value={newExpense.amount}
                                 onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
                                 className="border p-2 rounded text-black-100"
                             />
-                            <input
+                            <Input
                                 type="text"
                                 placeholder="Description"
                                 value={newExpense.description}
