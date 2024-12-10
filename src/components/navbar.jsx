@@ -6,7 +6,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Fragment } from "react";
 import PropTypes from "prop-types";
 import ThemeToggle from "../components/theme-toggle-button";
-import { useParams } from "react-router-dom";
+const location = useLocation();
 
 export function Divider() {
     return (
@@ -39,11 +39,8 @@ Logo.propTypes = {
     className: PropTypes.string
 }
 
-// IF on trip-details page, it will retreive the trip_id from the url
-let trip_id = null;
-if (location.pathname.startsWith("/trip-details/")) {
-    trip_id = location.pathname.split("/")[2]; 
-}
+// Gets trip_id from state mentioned at maintrips (trips list)
+let trip_id =  location.state?.tri_id || null;
 
 
 
@@ -59,7 +56,6 @@ const navigation = [
 
 export function Navbar() {
     const { user, isSignedIn } = useUser();
-    const location = useLocation();
     return (
         <header className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-b">
             <Popover as="header" className="relative">

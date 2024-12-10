@@ -81,7 +81,10 @@ export default function MainTripsPage() {
                                 </div>
 
                                 <Link
-                                    to={`/trip-details/${trip.trip_id}`} // Переход к детальной странице трипа
+                                    to={{
+                                        pathname: `/trip-details/${trip.trip_id}`,
+                                        state: {tri_id: trip.trip_id}
+                                    }} // Переход к детальной странице трипа
                                     className="mt-4 text-lg font-medium shadow-lg border rounded-lg border-white py-2 px-8 text-white bg-black transition hover:bg-white hover:text-black"
                                 >
                                     View Trip Details
