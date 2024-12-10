@@ -7,6 +7,7 @@ import { Fragment } from "react";
 import PropTypes from "prop-types";
 import ThemeToggle from "../components/theme-toggle-button";
 
+
 export function Divider() {
     return (
         <div className="relative">
@@ -38,18 +39,29 @@ Logo.propTypes = {
     className: PropTypes.string
 }
 
-const authed_nav = [
-    { name: "Trips", to: "/trips" },
-    { name: "Expenses", to: "/expenses" },
-    { name: "Dashboard", to: "/dashboard" }
-];
-
-const navigation = [
-    { name: "Home", to: "/" }
-];
 
 export function Navbar() {
     const { user, isSignedIn } = useUser();
+    const location = useLocation();
+
+    //gets trip_id from url, if not trip-details page, it will default to null
+    let trip_id = null;
+    if (location.pathname.startsWith("/trip-details/")) {
+        trip_id = location.pathname.split("/")[2]; 
+    }
+
+
+    const authed_nav = [
+        { name: "Trips", to: "/trips" },
+        { name: "Expenses", to: `/expenses/${trip_id}` },
+        { name: "Dashboard", to: "/dashboard" }
+    ];
+
+    const navigation = [
+        { name: "Home", to: "/" }
+    ];
+
+
     return (
         <header className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-b">
             <Popover as="header" className="relative">
@@ -74,16 +86,26 @@ export function Navbar() {
                         </div>
                         {/*left menu items*/}
                         <div className="hidden -space-x-1 md:flex">
-                            {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => (
-                                <Link
-                                    key={item.name}
-                                    to={item.to}
-                                    className="px-3 text-sm font-medium text-black-100 dark:text-foreground"
-                                >
-                                    {item.name}
-                                </Link>
-                            ))}
-                        </div>
+                        {(isSignedIn
+                                //Checks if in trip-details, if yes returns everything + expenses, 
+                                //if no returns everything without expenses
+                            ? navigation.concat(authed_nav).filter((item) => {
+                                if (location.pathname.startsWith("/trip-details")) {
+                                    return item.name === "Expenses" || item.name !== "Expenses"; 
+                                }
+                                return item.name !== "Expenses";
+                            })
+                            : navigation
+                        ).map((item) => (
+                            <Link
+                                key={item.name}
+                                to={item.to}
+                                className="px-3 text-sm font-medium text-black-100 dark:text-foreground"
+                            >
+                                {item.name}
+                            </Link>
+                        ))}
+                    </div>
                     </div>
                     {/*right side desktop*/}
                     <div className="hidden transition-opacity md:flex md:items-center md:space-x-2">
@@ -130,7 +152,18 @@ export function Navbar() {
 
                             <div className="pb-6 pt-5">
                                 <div className="mb-2 flex flex-col space-y-1 px-2">
-                                    {(isSignedIn ? navigation.concat(authed_nav) : navigation).map((item) => item.name !== "Dashboard" ? (
+                                {(isSignedIn
+                                    //Checks if in trip-details, if yes returns everything + expenses, 
+                                    //if no returns everything without expenses
+                                    ? navigation.concat(authed_nav).filter((item) => {      
+                                        if (location.pathname.startsWith("/trip-details")) {
+                                            return item.name === "Expenses" || item.name !== "Expenses"; 
+                                        }
+                                        return item.name !== "Expenses"; 
+                                    })
+                                    : navigation
+                                ).map((item) =>
+                                    item.name !== "Dashboard" ? (
                                         <Link
                                             key={item.name}
                                             to={item.to}
@@ -138,7 +171,8 @@ export function Navbar() {
                                         >
                                             {item.name}
                                         </Link>
-                                    ) : null)}
+                                    ) : null
+                                )}
                                 </div>
                                 <Divider />
                                 <div className="mt-6 px-5 text-black-100 dark:text-foreground/80">

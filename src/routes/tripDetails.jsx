@@ -28,7 +28,6 @@ export default function ViewTripDetails() {
             const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
                 .then(response => response.json());
 
-            console.log("Trip Data: ", tripData)
             setTrip(tripData);
         }
         if (user?.id) {
