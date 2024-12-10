@@ -1,11 +1,15 @@
 import { useState } from 'react'
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { Button } from '../components/ui/button'
+import { useNavigate } from 'react-router-dom';
 
 export default function JoinTrip() {
     const [code, setCode] = useState("");
     const [valid, setValid] = useState(false);
     const { getToken } = useAuth();
+    const { user } = useUser();
+    const clerk_ID = user.id;
+    const navigate = useNavigate();
 
     let handleChange = (event) => {
         setCode(event.target.value.trim())
@@ -15,19 +19,29 @@ export default function JoinTrip() {
     async function join_trip(trip_code) {
         const token = await getToken();
         const url = `${import.meta.env.VITE_API_URL}/trips/${trip_code}/join`
+
+
         try {
+
+            const userID = await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${clerk_ID}`)
+                .then(response => response.json());
+
             const res = await fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-            })
-            const json = await res.json();
-            console.log(json)
+                body: JSON.stringify({user_id: userID})
+            }).then(response => response.json())
+            .then(response => response.result.trip_id)
+            const trip_id = await res
+            navigate(`/trip-details/${trip_id}`)
         } catch (err) {
             console.log("err:", err);
         }
+
+        
     };
 
     return (
