@@ -1,15 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { PropTypes } from 'prop-types'
+import { useUser } from '@clerk/clerk-react';
 
-export function ExpenseCard({ expense }) {
+export function ExpenseCard({ expense, handle_mark_as_paid }) {
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const { user } = useUser();
+
+    const memoed_handle_mark_as_paid = useCallback(handle_mark_as_paid,
+        [handle_mark_as_paid]);
+    const did_user_pay = useMemo(() => expense.participants?.some(p => p.clerk_id === user.id && p.is_paid), [expense, user.id]);
 
     const totalPaid = expense.participants?.filter((p) => p.is_paid)?.length || 0
     const totalParticipants = expense.participants?.length || 0
@@ -30,7 +36,11 @@ export function ExpenseCard({ expense }) {
             </CardContent>
             <CardFooter className="flex justify-between">
                 <Button variant="outline" onClick={() => setIsModalOpen(true)}>View Details</Button>
-                {/*<Button>Mark as Paid</Button>*/}
+                {!did_user_pay && <Button onClick={() => {
+                    if (expense?.expense_id) {
+                        void memoed_handle_mark_as_paid(expense.expense_id);
+                    }
+                }}>Mark as Paid</Button>}
             </CardFooter>
             <ParticipantModal
                 isOpen={isModalOpen}
@@ -38,11 +48,12 @@ export function ExpenseCard({ expense }) {
                 participants={expense.participants}
                 expenseName={expense.name}
             />
-        </Card>
+        </Card >
     )
 }
 ExpenseCard.propTypes = {
-    expense: PropTypes.object.isRequired
+    expense: PropTypes.object.isRequired,
+    handle_mark_as_paid: PropTypes.func.isRequired
 }
 
 export function ParticipantModal({ isOpen, onClose, participants, expenseName }) {
@@ -61,8 +72,8 @@ export function ParticipantModal({ isOpen, onClose, participants, expenseName })
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {participants.map((participant, index) => (
-                            <TableRow key={index}>
+                        {participants.map((participant, idx) => (
+                            <TableRow key={idx}>
                                 <TableCell>{participant.name}</TableCell>
                                 <TableCell>${participant.amount.toFixed(2)}</TableCell>
                                 <TableCell>
