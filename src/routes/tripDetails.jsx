@@ -28,7 +28,6 @@ export default function ViewTripDetails() {
             const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
                 .then(response => response.json());
 
-            console.log("Trip Data: ", tripData)
             setTrip(tripData);
         }
         if (user?.id) {
@@ -71,6 +70,27 @@ export default function ViewTripDetails() {
         void get_expenses();
     }, [tripId]);
 
+
+    async function handle_mark_as_paid(expense_id) {
+        const token = await getToken();
+        const url = `${import.meta.env.VITE_API_URL}/expenses/${expense_id}/mark-as-paid`
+        try {
+            const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+            })
+            if (res.ok) {
+                setExpenses(await get_expenses().results)
+            }
+        } catch (err) {
+            console.log("err:", err);
+        }
+    };
+
+
     const addExpense = async () => {
         const token = await getToken();
         // APi call to pass through values of input fields to create expense
@@ -94,23 +114,21 @@ export default function ViewTripDetails() {
     };
 
 
-    const deleteExpense = async (expense_id) => {
-        try {
-            //  Attemts to delete with expense ID
-            await fetch(`${import.meta.env.VITE_API_URL}/expenses/${expense_id}`, {
-                method: "DELETE", // Specify the HTTP method
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
-
-            setExpenses(await get_expenses().results)    //  Refreshes expenses list
-        } catch (err) {
-            console.log("Error occured when deleting expense: " + err)
-        }
-
-
-    };
+    // const deleteExpense = async (expense_id) => {
+    //     try {
+    //         //  Attemts to delete with expense ID
+    //         await fetch(`${import.meta.env.VITE_API_URL}/expenses/${expense_id}`, {
+    //             method: "DELETE", // Specify the HTTP method
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             }
+    //         })
+    //
+    //         setExpenses(await get_expenses().results)    //  Refreshes expenses list
+    //     } catch (err) {
+    //         console.log("Error occured when deleting expense: " + err)
+    //     }
+    // };
 
     return (
         <div className="lg:px-20 pt-1 sm:m-20 text-foreground min-h-screen p-4">
@@ -186,7 +204,7 @@ export default function ViewTripDetails() {
                             {expenses?.length > 0 ? (
                                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
                                     {expenses.map((expense) => (
-                                        <ExpenseCard key={expense.id} expense={expense} />
+                                        <ExpenseCard key={expense.expense_id} handle_mark_as_paid={handle_mark_as_paid} expense={expense} />
                                     ))}
                                 </div>
                             ) : (
