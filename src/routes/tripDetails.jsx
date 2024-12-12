@@ -122,23 +122,6 @@ export default function ViewTripDetails() {
     };
 
 
-<<<<<<< Updated upstream
-    // const deleteExpense = async (expense_id) => {
-    //     try {
-    //         //  Attemts to delete with expense ID
-    //         await fetch(`${import.meta.env.VITE_API_URL}/expenses/${expense_id}`, {
-    //             method: "DELETE", // Specify the HTTP method
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //             }
-    //         })
-    //
-    //         setExpenses(await get_expenses().results)    //  Refreshes expenses list
-    //     } catch (err) {
-    //         console.log("Error occured when deleting expense: " + err)
-    //     }
-    // };
-=======
     const deleteExpense = async (expense_id) => {
         try {
             //  Attemts to delete with expense ID
@@ -155,7 +138,6 @@ export default function ViewTripDetails() {
         }
 
     };
->>>>>>> Stashed changes
 
 
     function calculateDetailedOwedAmount(userId, data) {
