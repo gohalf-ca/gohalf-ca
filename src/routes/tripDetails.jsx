@@ -303,19 +303,6 @@ export default function ViewTripDetails() {
                     </div>
 
                     <div className="mt-8">
-<<<<<<< Updated upstream
-                        <h2 className="text-2xl font-bold">Expenses</h2>
-                        <div className="my-4">
-                            {expenses?.length > 0 ? (
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
-                                    {expenses.map((expense) => (
-                                        <ExpenseCard key={expense.expense_id} handle_mark_as_paid={handle_mark_as_paid} expense={expense} />
-                                    ))}
-                                </div>
-                            ) : (
-                                <p>No expenses found</p>
-                            )}
-=======
                         <div className='flex flex-row gap-6 items-baseline transition'>
                             <button className={tab1 ? "text-2xl font-bold border-b-2 border-black pb-2" : "text-xl font-bold text-gray-500"}
                                 onClick={() => setTab1(true)}>
@@ -325,7 +312,6 @@ export default function ViewTripDetails() {
                                 onClick={() => setTab1(false)}>
                                 Balance
                             </button>
->>>>>>> Stashed changes
                         </div>
 
                         {tab1 ? 
