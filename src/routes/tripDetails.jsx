@@ -13,9 +13,16 @@ export default function ViewTripDetails() {
     const [trip, setTrip] = useState(null);
     const [expenses, setExpenses] = useState([]);
     const [newExpense, setNewExpense] = useState({ amount: '', description: '' });
-    const [userID, setUserID] = useState();
+    const [userID, setUserID] = useState(null);
+    const [tab1, setTab1] = useState(true);
+    const [owe, setOwe] = useState(true);
+    const [balance, setBalance] = useState({owe: {}, owed: {}})
 
     const { user } = useUser();
+
+    //array containing people who user owe's money to
+    let userOwe  ;
+    let oweOthers;
 
     useEffect(() => {
         let initialSetUp = async () => {
@@ -29,6 +36,7 @@ export default function ViewTripDetails() {
                 .then(response => response.json());
 
             setTrip(tripData);
+            
         }
         if (user?.id) {
             initialSetUp();
@@ -114,6 +122,7 @@ export default function ViewTripDetails() {
     };
 
 
+<<<<<<< Updated upstream
     // const deleteExpense = async (expense_id) => {
     //     try {
     //         //  Attemts to delete with expense ID
@@ -129,6 +138,100 @@ export default function ViewTripDetails() {
     //         console.log("Error occured when deleting expense: " + err)
     //     }
     // };
+=======
+    const deleteExpense = async (expense_id) => {
+        try {
+            //  Attemts to delete with expense ID
+            await fetch(`${import.meta.env.VITE_API_URL}/expenses/${expense_id}`, {
+                method: "DELETE", // Specify the HTTP method
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+
+            setExpenses(await get_expenses().results)    //  Refreshes expenses list
+        } catch (err) {
+            console.log("Error occured when deleting expense: " + err)
+        }
+
+    };
+>>>>>>> Stashed changes
+
+
+    function calculateDetailedOwedAmount(userId, data) {
+        const owedDetails = {};
+        data.forEach(expense => {
+            expense.participants.forEach(participant => {
+                if (participant.user_id === userId && !participant.is_paid) {   
+                    const creatorName = expense.created_by.name;
+                    if (!owedDetails[creatorName]) { //creates object if user is not already in array
+                        owedDetails[creatorName] = 0; //creates object
+                    }
+                    owedDetails[creatorName] += participant.amount; 
+                }
+            });
+        });
+    
+        return owedDetails;
+    }
+
+
+    function calculateAmountOwedToUser(userId, data, userName) {
+        const amountOwedToUser = [];
+    
+        data.forEach(expense => {
+            // Check if the user created the expense
+            if (expense.created_by.name === userName) { 
+                expense.participants.forEach(participant => {
+                    if (participant.user_id !== userId && !participant.is_paid) {
+                        const debtorName = participant.name;
+    
+                        // Check if this person is already in the list
+                        const existingEntry = amountOwedToUser.find(entry => entry.name === debtorName);
+                        if (existingEntry) {
+                            existingEntry.amount += participant.amount;
+                        } else {
+                            amountOwedToUser.push({ name: debtorName, amount: participant.amount });
+                        }
+                    }
+                });
+            }
+        });
+    
+        return amountOwedToUser;
+    }
+    
+
+    
+    useEffect(() => {
+        let username;
+
+        if (userID !== null){
+            function getUserNameById(userID, data) {
+                for (const expense of data) {
+                    // Check in the participants array
+                    for (const participant of expense.participants) {
+                        if (participant.user_id === userID) {
+                            return participant.name; // Return the name if user_id matches
+                        }
+                    }
+                }
+                return null; // Return null if no match found
+            }
+            
+            username = getUserNameById(userID, expenses);
+        }
+
+
+        if (expenses !== undefined){
+            setBalance(() => ({
+                owe: calculateDetailedOwedAmount(userID, expenses),
+                owed: calculateAmountOwedToUser(userID, expenses, username)
+            }))
+        }        
+        
+    }, [expenses])
+
 
     return (
         <div className="lg:px-20 pt-1 sm:m-20 text-foreground min-h-screen p-4">
@@ -143,12 +246,31 @@ export default function ViewTripDetails() {
 
                         }
                     >
-                        <div className="absolute inset-0 bg-opacity-50 bg-secondary flex justify-center items-center">
-                            <div className="text-center">
-                                <h1 className="text-4xl font-bold">{trip.name}</h1>
-                                <p>({trip.code})</p>
+                        {tab1?
+                            <div className="absolute inset-0 bg-opacity-50 bg-secondary flex p-10 sm:flex-row flex-col justify-center sm:justify-normal">
+                                <div className='sm:w-1/3 w-full pb-6'>
+                                    <h1 className="text-4xl font-bold">{trip.name}</h1>
+                                    <p className='pl-6'>({trip.code})</p>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-3xl font-semibold mb-2">Trip Cost</h2>
+                                    <div className="text-6xl font-bold pl-4">$23.50</div>
+                                </div>
+                            </div>
+                        : 
+                        <div className="absolute inset-0 bg-opacity-50 bg-secondary flex p-10 sm:flex-row flex-col justify-center sm:justify-normal">
+                            <div>
+                                <h2 className="text-2xl font-medium mb-2">Your Balance</h2>
+                                <div className="text-6xl font-bold">$23.50</div>
+                                <div className="text-md text-zinc-400 mt-1">You owe</div>
+                            </div>
+                            <div className='pr-36'>
+                                <h2 className="text-2xl font-medium mb-2">Amount owed</h2>
+                                <div className="text-6xl font-bold">$62.00</div>
                             </div>
                         </div>
+                    }
                     </div>
 
                     {/* <div className="mt-6 flex justify-center">
@@ -199,6 +321,7 @@ export default function ViewTripDetails() {
                     </div>
 
                     <div className="mt-8">
+<<<<<<< Updated upstream
                         <h2 className="text-2xl font-bold">Expenses</h2>
                         <div className="my-4">
                             {expenses?.length > 0 ? (
@@ -210,7 +333,130 @@ export default function ViewTripDetails() {
                             ) : (
                                 <p>No expenses found</p>
                             )}
+=======
+                        <div className='flex flex-row gap-6 items-baseline transition'>
+                            <button className={tab1 ? "text-2xl font-bold border-b-2 border-black pb-2" : "text-xl font-bold text-gray-500"}
+                                onClick={() => setTab1(true)}>
+                                Main
+                            </button>
+                            <button className={tab1 ? "text-xl font-bold text-gray-500 transition hover:scale-110 hover:text-black" : "text-2xl font-bold border-b-2 border-black pb-2"}
+                                onClick={() => setTab1(false)}>
+                                Balance
+                            </button>
+>>>>>>> Stashed changes
                         </div>
+
+                        {tab1 ? 
+                            <div className="my-4">
+                                {expenses !== undefined ? (
+                                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 px-4">
+                                        {expenses.map((expense) => (
+                                            <ExpenseCard key={expense.id} expense={expense} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p>No expenses found</p>
+                                )}
+                            </div>
+                            :
+                            <div className="my-4">
+                                
+                                <div className="flex justify-between items-center mb-6 border-t-2 border-gray-500 pb-2">
+                                    <div className="flex gap-4">
+                                        <button className="text-xl font-semibold text-gray-500 hover:text-gray-900"
+                                        onClick={() => setOwe(true)}>
+                                            owe
+                                        </button>
+                                        <button className="text-xl font-semibold text-gray-500 hover:text-gray-900 "
+                                        onClick={() => setOwe(false)}>
+                                            owed
+                                        </button>
+                                    </div>
+
+                                    <button className="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1">
+                                        Sort <span className="text-4xl">↓</span>
+                                    </button>
+                                </div>
+
+
+                                <div className="space-y-4">
+                                {(expenses !== undefined) &&
+                                owe ? (
+                                    Object.entries(balance.owe).map(([person, amount], index) => (
+                                        <div
+                                            key={index}
+                                            className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <div className="space-y-1">
+                                                    <h3 className="font-medium text-gray-900 text-xl">{person}</h3>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-2xl font-semibold">
+                                                        $ {amount.toFixed(2)}
+                                                    </span>
+                                                    <div className="text-red-500 h-8 w-8 relative">
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            className="absolute inset-0"
+                                                        >
+                                                            <line x1="7" y1="17" x2="17" y2="7"></line>
+                                                            <polyline points="7 7 17 7 17 17"></polyline>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))) 
+                                    : (
+                                        Object.entries(balance.owed).map(([person, amount], index) => (
+                                            <div
+                                                key={index}
+                                                className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
+                                            >
+                                               
+                                                <div className="flex justify-between items-center">
+                                                    <div className="space-y-1">
+                                                        <h3 className="font-medium text-gray-900 text-xl">{person}</h3>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-2xl font-semibold">
+                                                            $ {amount.toFixed(2)}
+                                                        </span>
+                                                        <div className="text-red-500 h-8 w-8 relative">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                className="absolute inset-0"
+                                                            >
+                                                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                                                <polyline points="7 7 17 7 17 17"></polyline>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                )
+
+                                
+                                }
+                            </div>
+                                
+
+
+                            </div>}
                     </div>
                 </>
             ) : (
