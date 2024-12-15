@@ -4,6 +4,7 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import { Button } from '../components/ui/button';
 import { ExpenseCard } from '../components/expense-card';
 import { Input } from '../components/ui/input';
+import List_Item from '../components/list-item';
 // import { useNavigate } from 'react-router-dom';
 
 export default function ViewTripDetails() {
@@ -20,9 +21,6 @@ export default function ViewTripDetails() {
 
     const { user } = useUser();
 
-    //array containing people who user owe's money to
-    let userOwe  ;
-    let oweOthers;
 
     useEffect(() => {
         let initialSetUp = async () => {
@@ -158,12 +156,12 @@ export default function ViewTripDetails() {
     }
 
 
-    function calculateAmountOwedToUser(userId, data, userName) {
+    function calculateAmountOwedToUser(userId, data) {
         const amountOwedToUser = [];
     
         data.forEach(expense => {
             // Check if the user created the expense
-            if (expense.created_by.name === userName) { 
+            if (expense.created_by.Id === userId) { 
                 expense.participants.forEach(participant => {
                     if (participant.user_id !== userId && !participant.is_paid) {
                         const debtorName = participant.name;
@@ -179,36 +177,18 @@ export default function ViewTripDetails() {
                 });
             }
         });
-    
+
         return amountOwedToUser;
     }
     
 
     
     useEffect(() => {
-        let username;
-
-        if (userID !== null){
-            function getUserNameById(userID, data) {
-                for (const expense of data) {
-                    // Check in the participants array
-                    for (const participant of expense.participants) {
-                        if (participant.user_id === userID) {
-                            return participant.name; // Return the name if user_id matches
-                        }
-                    }
-                }
-                return null; // Return null if no match found
-            }
-            
-            username = getUserNameById(userID, expenses);
-        }
-
-
+        
         if (expenses !== undefined){
             setBalance(() => ({
                 owe: calculateDetailedOwedAmount(userID, expenses),
-                owed: calculateAmountOwedToUser(userID, expenses, username)
+                owed: calculateAmountOwedToUser(userID, expenses)
             }))
         }        
         
@@ -304,11 +284,11 @@ export default function ViewTripDetails() {
 
                     <div className="mt-8">
                         <div className='flex flex-row gap-6 items-baseline transition'>
-                            <button className={tab1 ? "text-2xl font-bold border-b-2 border-black pb-2" : "text-xl font-bold text-gray-500"}
+                            <button className={tab1 ? "transition text-2xl font-bold border-b-2 border-black pb-2" : "text-xl font-bold text-gray-500 transition hover:scale-110 hover:text-black"}
                                 onClick={() => setTab1(true)}>
                                 Main
                             </button>
-                            <button className={tab1 ? "text-xl font-bold text-gray-500 transition hover:scale-110 hover:text-black" : "text-2xl font-bold border-b-2 border-black pb-2"}
+                            <button className={tab1 ? "text-xl font-bold text-gray-500 transition hover:scale-110 hover:text-black" : "transition text-2xl font-bold border-b-2 border-black pb-2"}
                                 onClick={() => setTab1(false)}>
                                 Balance
                             </button>
@@ -329,19 +309,19 @@ export default function ViewTripDetails() {
                             :
                             <div className="my-4">
                                 
-                                <div className="flex justify-between items-center mb-6 border-t-2 border-gray-500 pb-2">
+                                <div className="flex justify-between items-center mb-6 pb-2">
                                     <div className="flex gap-4">
-                                        <button className="text-xl font-semibold text-gray-500 hover:text-gray-900"
+                                        <button className={owe ? "text-xl font-bold text-black bg-stone-200 px-3 rounded-md hover:text-gray-900 scale-105" : "text-xl font-semibold text-gray-500 transition px-3 hover:text-gray-900 hover:font-bold hover:text-black hover:scale-105 hover:rounded-md hover:bg-stone-200"}
                                         onClick={() => setOwe(true)}>
                                             owe
                                         </button>
-                                        <button className="text-xl font-semibold text-gray-500 hover:text-gray-900 "
+                                        <button className={owe ? "text-xl font-semibold text-gray-500 transition px-3 hover:text-gray-900 hover:font-bold hover:text-black hover:scale-105 hover:rounded-md hover:bg-stone-200" : "text-xl font-bold text-black bg-stone-200 px-3 rounded-md hover:text-gray-900 scale-105"}
                                         onClick={() => setOwe(false)}>
                                             owed
                                         </button>
                                     </div>
 
-                                    <button className="text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1">
+                                    <button className="text-xl font-bold text-black transition hover:scale-105 flex items-center gap-1">
                                         Sort <span className="text-4xl">↓</span>
                                     </button>
                                 </div>
@@ -383,47 +363,13 @@ export default function ViewTripDetails() {
                                         </div>
                                     ))) 
                                     : (
-                                        Object.entries(balance.owed).map(([person, amount], index) => (
-                                            <div
-                                                key={index}
-                                                className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
-                                            >
-                                               
-                                                <div className="flex justify-between items-center">
-                                                    <div className="space-y-1">
-                                                        <h3 className="font-medium text-gray-900 text-xl">{person}</h3>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-2xl font-semibold">
-                                                            $ {amount.toFixed(2)}
-                                                        </span>
-                                                        <div className="text-red-500 h-8 w-8 relative">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                viewBox="0 0 24 24"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                strokeWidth="2"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                className="absolute inset-0"
-                                                            >
-                                                                <line x1="7" y1="17" x2="17" y2="7"></line>
-                                                                <polyline points="7 7 17 7 17 17"></polyline>
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        balance.owed.map( entry => (
+                                            <List_Item name={entry.name} amount={entry.amount} />     
                                         ))
-                                )
-
-                                
+                                    )
                                 }
                             </div>
-                                
-
-
+                            
                             </div>}
                     </div>
                 </>
