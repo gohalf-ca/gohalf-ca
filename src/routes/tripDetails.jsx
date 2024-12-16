@@ -17,7 +17,7 @@ export default function ViewTripDetails() {
     const [userID, setUserID] = useState(null);
     const [tab1, setTab1] = useState(true);
     const [owe, setOwe] = useState(true);
-    const [balance, setBalance] = useState({owe: {}, owed: {}})
+    const [balance, setBalance] = useState({owe: {}, owed: {}, trip_Cost: 0, balance_owe_amt: 0, balance_owed_amt: 0})
 
     const { user } = useUser();
 
@@ -34,7 +34,7 @@ export default function ViewTripDetails() {
                 .then(response => response.json());
 
             setTrip(tripData);
-            
+
         }
         if (user?.id) {
             initialSetUp();
@@ -181,18 +181,73 @@ export default function ViewTripDetails() {
         return amountOwedToUser;
     }
     
+    let balace_total_owe = (userId, data) => {
+        let total = 0;
+
+        data.forEach(expense => {
+            expense.participants.forEach(participant => {
+                if (participant.user_id === userId && !participant.is_paid) {   
+                    total += participant.amount;
+                }
+            });
+        });
+    
+        return total;
+    }
+
+    let balace_total_owed = (userId, data) => {
+        let total = 0;
+    
+        data.forEach(expense => {
+            // Check if the user created the expense
+            if (expense.created_by.Id === userId) { 
+                expense.participants.forEach(participant => {
+                    if (participant.user_id !== userId && !participant.is_paid) {
+                        total += participant.amount;
+                    }
+                });
+            }
+        });
+
+
+        return total;
+    }
+
+    let total_trip_cost = (data) => {
+        let total = 0;
+
+        data.forEach(expense => {
+            total += expense.amount;
+        });
+
+        return total;
+    }
 
     
     useEffect(() => {
         
         if (expenses !== undefined){
-            setBalance(() => ({
+            setBalance(prevState => ({
+                ...prevState,
                 owe: calculateDetailedOwedAmount(userID, expenses),
-                owed: calculateAmountOwedToUser(userID, expenses)
+                owed: calculateAmountOwedToUser(userID, expenses),
+                balance_owe_amt: balace_total_owe(userID, expenses),
+                balance_owed_amt: balace_total_owed(userID, expenses),
+                trip_Cost: total_trip_cost(expenses)
             }))
+
+
+            // setBalance(() => ({
+            //     balance_owe_amt: balace_total_owe(balance.owe),
+            //     balance_owed_amt: balace_total_owed(balance.owed)
+            // }))
         }        
         
     }, [expenses])
+
+
+    
+
 
 
     return (
@@ -200,7 +255,7 @@ export default function ViewTripDetails() {
             {trip ? (
                 <>
                     <div
-                        className="relative bg-cover bg-center h-60 rounded-lg overflow-hidden"
+                        className="relative bg-cover bg-center sm:h-60 h-72 rounded-lg overflow-hidden"
                         style={
                             trip.photo ?
                                 { backgroundImage: `url(${trip.photo})` }
@@ -209,27 +264,31 @@ export default function ViewTripDetails() {
                         }
                     >
                         {tab1?
-                            <div className="absolute inset-0 bg-opacity-50 bg-secondary flex p-10 sm:flex-row flex-col justify-center sm:justify-normal">
-                                <div className='sm:w-1/3 w-full pb-6'>
-                                    <h1 className="text-4xl font-bold">{trip.name}</h1>
-                                    <p className='pl-6'>({trip.code})</p>
-                                </div>
+                            <div className="absolute inset-0 bg-opacity-50 bg-secondary content-center justify-start">
+                                <div className='flex sm:flex-row flex-col justify-around sm:w-4/6 w-full pl-6 sm:pl-0 sm:gap-6'>
+                                    <div>
+                                        <h1 className="text-5xl font-bold pb-2 w-fit border-b-2 border-black">{trip.name}</h1>
+                                        <p className='pl-6'>({trip.code})</p>
+                                    </div>
 
-                                <div>
-                                    <h2 className="text-3xl font-semibold mb-2">Trip Cost</h2>
-                                    <div className="text-6xl font-bold pl-4">$23.50</div>
+                                    <div>
+                                        <h2 className="text-3xl font-semibold mb-2">Trip Cost</h2>
+                                        <div className="text-6xl font-bold pl-4">${balance.trip_Cost}</div>
+                                    </div>
                                 </div>
                             </div>
                         : 
-                        <div className="absolute inset-0 bg-opacity-50 bg-secondary flex p-10 sm:flex-row flex-col justify-center sm:justify-normal">
-                            <div>
-                                <h2 className="text-2xl font-medium mb-2">Your Balance</h2>
-                                <div className="text-6xl font-bold">$23.50</div>
-                                <div className="text-md text-zinc-400 mt-1">You owe</div>
-                            </div>
-                            <div className='pr-36'>
-                                <h2 className="text-2xl font-medium mb-2">Amount owed</h2>
-                                <div className="text-6xl font-bold">$62.00</div>
+                        <div className="absolute inset-0 bg-opacity-50 bg-secondary content-center justify-start">
+                                <div className='flex sm:flex-row flex-col justify-around sm:w-4/6 w-full pl-6 sm:pl-0  sm:gap-6'>
+                                <div>
+                                    <h2 className="text-2xl font-medium mb-2">Your Balance</h2>
+                                    <div className="text-6xl font-bold">${balance.balance_owe_amt}</div>
+                                    <div className="text-md text-zinc-400 mt-1">You owe</div>
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-medium mb-2">Amount owed</h2>
+                                    <div className="text-6xl font-bold">${balance.balance_owed_amt}</div>
+                                </div>
                             </div>
                         </div>
                     }
@@ -311,11 +370,11 @@ export default function ViewTripDetails() {
                                 
                                 <div className="flex justify-between items-center mb-6 pb-2">
                                     <div className="flex gap-4">
-                                        <button className={owe ? "text-xl font-bold text-black bg-stone-200 px-3 rounded-md hover:text-gray-900 scale-105" : "text-xl font-semibold text-gray-500 transition px-3 hover:text-gray-900 hover:font-bold hover:text-black hover:scale-105 hover:rounded-md hover:bg-stone-200"}
+                                        <button className={owe ? "text-xl font-bold text-black bg-accent px-3 rounded-sm hover:text-gray-900 scale-105 shadow-md" : "text-xl font-semibold text-gray-500 transition px-3 hover:text-gray-900 hover:font-bold hover:text-black hover:scale-105 hover:rounded-md hover:bg-accent hover:shadow-lg"}
                                         onClick={() => setOwe(true)}>
                                             owe
                                         </button>
-                                        <button className={owe ? "text-xl font-semibold text-gray-500 transition px-3 hover:text-gray-900 hover:font-bold hover:text-black hover:scale-105 hover:rounded-md hover:bg-stone-200" : "text-xl font-bold text-black bg-stone-200 px-3 rounded-md hover:text-gray-900 scale-105"}
+                                        <button className={owe ? "text-xl font-semibold text-gray-500 transition px-3 hover:text-gray-900 hover:font-bold hover:text-black hover:scale-105 hover:rounded-md hover:bg-accent hover:shadow-lg" : "text-xl font-bold text-black bg-accent px-3 rounded-sm hover:text-gray-900 scale-105 shadow-md"}
                                         onClick={() => setOwe(false)}>
                                             owed
                                         </button>
@@ -329,42 +388,15 @@ export default function ViewTripDetails() {
 
                                 <div className="space-y-4">
                                 {(expenses !== undefined) &&
-                                owe ? (
+                                owe 
+                                ? (
                                     Object.entries(balance.owe).map(([person, amount], index) => (
-                                        <div
-                                            key={index}
-                                            className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
-                                        >
-                                            <div className="flex justify-between items-center">
-                                                <div className="space-y-1">
-                                                    <h3 className="font-medium text-gray-900 text-xl">{person}</h3>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-2xl font-semibold">
-                                                        $ {amount.toFixed(2)}
-                                                    </span>
-                                                    <div className="text-red-500 h-8 w-8 relative">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            strokeWidth="2"
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            className="absolute inset-0"
-                                                        >
-                                                            <line x1="7" y1="17" x2="17" y2="7"></line>
-                                                            <polyline points="7 7 17 7 17 17"></polyline>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))) 
+                                        <List_Item name={person} amount={amount} negative={true} /> 
+                                    ))
+                                ) 
                                     : (
                                         balance.owed.map( entry => (
-                                            <List_Item name={entry.name} amount={entry.amount} />     
+                                            <List_Item name={entry.name} amount={entry.amount} negative={false} />     
                                         ))
                                     )
                                 }
