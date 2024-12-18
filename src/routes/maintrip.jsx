@@ -5,10 +5,19 @@ import { useUser } from '@clerk/clerk-react';
 export default function MainTripsPage() {
     const [trips, setTrips] = useState([]);
     const { user } = useUser();
+    const [userID, setUserID] = useState(null);
 
     useEffect(() => {
         async function get_trips() {
             try {
+
+                let user_id_result = await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${user.id}`)
+                .then(response => response.json())
+                .then(response => response.ID);
+
+                setUserID(user_id_result);
+
+
                 let response = await fetch(`${import.meta.env.VITE_API_URL}/alltrips/${user.id}`)
                 if (!response.ok) {
                     throw new Error("Error occured during pull")
@@ -21,13 +30,14 @@ export default function MainTripsPage() {
                 console.log(`Error occured during pull of trip: ${err}`)
             }
         }
+        
         void get_trips();
     }, [user?.id]);
 
     // Функция для удаления trip
     const deleteTrip = async (tripID) => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripID}`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripID}/${userID}`, {
                 method: "DELETE"
             })
             if (!res.ok) {

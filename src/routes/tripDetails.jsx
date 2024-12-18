@@ -25,12 +25,15 @@ export default function ViewTripDetails() {
     useEffect(() => {
         let initialSetUp = async () => {
             // Api call to get userID, so it can be used in other api call where needed
-            setUserID(await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${user.id}`)
-                .then(response => response.json())
-                .then(response => response.ID));
+
+            let user_id_result = await fetch(`${import.meta.env.VITE_API_URL}/getuserid/${user.id}`)
+            .then(response => response.json())
+            .then(response => response.ID)
+
+            setUserID(user_id_result);
 
             // Retrieve trip data 
-            const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}`)
+            const tripData = await fetch(`${import.meta.env.VITE_API_URL}/trips/${tripId}/${user_id_result}`)
                 .then(response => response.json());
 
             setTrip(tripData);
@@ -45,7 +48,7 @@ export default function ViewTripDetails() {
 
     async function get_expenses() {
         try {
-            let res = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}/${userID}`)
             if (!res.ok) {
                 throw new Error("Error occured during pull")
             }
@@ -60,8 +63,9 @@ export default function ViewTripDetails() {
 
     useEffect(() => {
         async function get_expenses() {
-            try {
-                let res = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}`)
+           if(userID){
+             try {
+                let res = await fetch(`${import.meta.env.VITE_API_URL}/expenses/${tripId}/${userID}`)
                 if (!res.ok) {
                     throw new Error("Error occured during pull")
                 }
@@ -72,9 +76,10 @@ export default function ViewTripDetails() {
             } catch (err) {
                 console.log(`Error occured during pull of trip: ${err}`)
             }
+           }
         }
         void get_expenses();
-    }, [tripId]);
+    }, [userID]);
 
 
     async function handle_mark_as_paid(expense_id) {
@@ -87,6 +92,9 @@ export default function ViewTripDetails() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
+                body: JSON.stringify({
+                    user_id: userID,
+                })
             })
             if (res.ok) {
                 setExpenses(await get_expenses().results)
@@ -127,7 +135,11 @@ export default function ViewTripDetails() {
                 method: "DELETE", // Specify the HTTP method
                 headers: {
                     "Content-Type": "application/json",
-                }
+                },
+                body: JSON.stringify({
+                    trip_id: tripId,
+                    user_id: userID,
+                }),
             })
 
             setExpenses(await get_expenses().results)    //  Refreshes expenses list
@@ -237,10 +249,6 @@ export default function ViewTripDetails() {
             }))
 
 
-            // setBalance(() => ({
-            //     balance_owe_amt: balace_total_owe(balance.owe),
-            //     balance_owed_amt: balace_total_owed(balance.owed)
-            // }))
         }        
         
     }, [expenses])
